@@ -4,7 +4,7 @@
 
 | Task                                              | Stage     | Mode     | Ultracode | Updated    |
 | ------------------------------------------------- | --------- | -------- | --------- | ---------- |
-| Upuaut router library + demo SPA (docs/router.md) | build 3/9 | ATTENDED | yes       | 2026-11-05 |
+| Upuaut router library + demo SPA (docs/router.md) | build 4/9 | ATTENDED | yes       | 2026-11-05 |
 
 ## Worktrees
 
@@ -16,9 +16,9 @@ gitGraph
   commit id: "orient: scaffold + spec"
 ```
 
-| Worktree path                       | Branch         | Task   | Stage | Last commit                     | Next step      | Tier |
-| ----------------------------------- | -------------- | ------ | ----- | ------------------------------- | -------------- | ---- |
-| /home/fascio/projects/github/upuaut | feature/router | router | build | see `git log -1 feature/router` | task 4 history | top  |
+| Worktree path                       | Branch         | Task   | Stage | Last commit                     | Next step          | Tier |
+| ----------------------------------- | -------------- | ------ | ----- | ------------------------------- | ------------------ | ---- |
+| /home/fascio/projects/github/upuaut | feature/router | router | build | see `git log -1 feature/router` | task 5 router core | top  |
 
 ## Tasks
 
@@ -27,7 +27,7 @@ gitGraph
 | 1      | Errors and failure types                                                          | src/errors.ts `UpuautError`, `NavigationFailure`                              | tests/errors.test.ts                 | cheap     | done  |
 | 2      | Query parse/stringify                                                             | src/query.ts `parseQuery`, `stringifyQuery`                                   | tests/query.test.ts                  | cheap     | done  |
 | 3      | Path compile, match, rank (spec §3)                                               | src/path.ts `compilePath`, `rankPath`                                         | tests/path.test.ts                   | top       | done  |
-| 4      | History backends (spec §7)                                                        | src/history.ts `createMemoryHistory`, `createWebHistory`, `createHashHistory` | tests/history.test.ts                | top       | todo  |
+| 4      | History backends (spec §7)                                                        | src/history.ts `createMemoryHistory`, `createWebHistory`, `createHashHistory` | tests/history.test.ts                | top       | done  |
 | 5      | Router core: resolve, push/replace, guards, redirects, lazy, failures (spec §4-6) | src/router.ts `createRouter`                                                  | tests/router.test.ts                 | top       | todo  |
 | 6      | `<upuaut-router>`, `<upuaut-view>`, `<upuaut-link>` (spec §8)                     | src/components/*.ts                                                           | tests/components/*.test.ts           | top       | todo  |
 | 7      | Public exports                                                                    | src/index.ts                                                                  | `npm run typecheck`, `npm run build` | cheap     | todo  |
