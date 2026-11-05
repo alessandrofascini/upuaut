@@ -4,7 +4,7 @@ export type Query = Record<string, string | string[]>;
 export type Params = Record<string, string>;
 export type Meta = Record<string, unknown>;
 
-export type RouteComponent = Vessel<any> | string;
+export type RouteComponent = Vessel<any> | CustomElementConstructor | string;
 export type LazyRouteComponent = () => Promise<RouteComponent | {default: RouteComponent}>;
 
 export interface RouteRecord {

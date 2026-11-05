@@ -57,7 +57,7 @@ UpuautRouter.fire(); // registers <upuaut-router>, <upuaut-view>, <upuaut-link>
 ## 2. Route records
 
 ```ts
-type RouteComponent = Vessel | string /* tag name */;
+type RouteComponent = Vessel | CustomElementConstructor | string /* tag name */;
 type LazyRouteComponent = () => Promise<RouteComponent | {default: RouteComponent}>;
 
 interface RouteRecord {
@@ -73,6 +73,8 @@ interface RouteRecord {
 
 - A record with `children` and no `component` only groups paths.
 - `component` as a `Vessel` is fired (`.fire()`) before first render. A tag name must be defined by the app.
+- `component` as a plain `HTMLElement` subclass must be registered by the app (`customElements.define`); its tag comes from `customElements.getName()`. An unregistered class throws `UpuautError` at render.
+- Any other function is a lazy loader.
 - A lazy component is resolved once, during navigation and before guards finish; the result is cached.
 
 ## 3. Path syntax

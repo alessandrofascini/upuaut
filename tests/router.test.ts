@@ -234,6 +234,17 @@ describe("lazy components", () => {
   });
 });
 
+describe("plain custom element classes", () => {
+  it("are not treated as lazy loaders", async () => {
+    class Plain extends HTMLElement {}
+    const record: RouteRecord = {path: "/plain", component: Plain};
+    const {router} = await setup("/", [{path: "/", component: "x"}, record]);
+    await router.push("/plain");
+    expect(record.component).toBe(Plain);
+    expect(router.currentRoute.path).toBe("/plain");
+  });
+});
+
 describe("stop", () => {
   it("stops reacting to history pops", async () => {
     const {router, history} = await setup();

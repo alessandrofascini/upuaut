@@ -1,4 +1,5 @@
 import {mold, Shape} from "khnum";
+import {UpuautError} from "../errors";
 import {isLazyComponent, type Router} from "../router";
 import type {RouteLocation, RouteRecord} from "../types";
 import {ancestors, connectRouter, VIEW_TAG} from "./host";
@@ -40,9 +41,18 @@ export class UpuautView extends Shape<{name: string | null}>(VIEW_TAG, ["name"])
       let child: Element;
       if (typeof component === "string") {
         child = document.createElement(component);
-      } else {
+      } else if ("fire" in component) {
         component.fire();
         child = mold(component);
+      } else {
+        const tag = customElements.getName(component);
+        if (tag === null) {
+          throw new UpuautError(
+            "UpuautView",
+            `${component.name || "component"} is not registered with customElements.define()`,
+          );
+        }
+        child = document.createElement(tag);
       }
       this.#record = record;
       this.#child = child;

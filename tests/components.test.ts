@@ -115,6 +115,23 @@ describe("<upuaut-view>", () => {
     expect(renders).toBe(1);
   });
 
+  it("renders a registered plain custom element class", async () => {
+    class PlainPage extends HTMLElement {}
+    customElements.define("test-plain-page", PlainPage);
+    const {router, host} = await mount("/users/1");
+    router.resolve("/").matched[0].component = PlainPage;
+    const view = host.querySelector("upuaut-view") as UpuautView;
+    await router.push("/");
+    expect(view.firstElementChild).toBeInstanceOf(PlainPage);
+  });
+
+  it("throws for an unregistered plain class", async () => {
+    class Unregistered extends HTMLElement {}
+    const {router} = await mount("/users/1");
+    router.resolve("/").matched[0].component = Unregistered;
+    await expect(router.push("/")).rejects.toThrow(/not registered/);
+  });
+
   it("renders nothing when no record matches its depth", async () => {
     const {router, host} = await mount("/");
     await router.push("/missing");

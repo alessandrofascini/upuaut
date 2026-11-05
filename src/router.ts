@@ -65,7 +65,7 @@ interface Matcher {
 export function isLazyComponent(
   component: RouteRecord["component"],
 ): component is LazyRouteComponent {
-  return typeof component === "function" && !("fire" in component);
+  return typeof component === "function" && !(component.prototype instanceof HTMLElement);
 }
 
 function splitRaw(raw: string): {path: string; query: Query; hash: string} {
