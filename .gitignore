@@ -1,0 +1,11 @@
+node_modules
+dist
+dist-demo
+coverage
+*.log
+.claude/sweeps/
+.claude/outputs/
+.vitest/
+test-results/
+playwright-report/
+dist-docs/

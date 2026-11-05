@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Upuaut demo</title>
+  </head>
+  <body>
+    <upuaut-router>
+      <header class="app-header">
+        <span class="logo" aria-hidden="true">⟡</span>
+        <strong>Upuaut</strong>
+        <span class="tagline">the opener of the ways · router demo</span>
+      </header>
+      <nav class="app-nav" aria-label="Pages">
+        <p class="nav-title">Pages</p>
+        <upuaut-link to="/">Home</upuaut-link>
+        <upuaut-link to="/users">Users</upuaut-link>
+        <upuaut-link to="/about">About</upuaut-link>
+        <upuaut-link to="/search">Search</upuaut-link>
+        <upuaut-link to="/posts">Posts</upuaut-link>
+        <upuaut-link to="/files">Files</upuaut-link>
+        <upuaut-link to="/docs">Docs</upuaut-link>
+        <upuaut-link to="/admin">Admin</upuaut-link>
+        <p class="nav-title">Edge cases</p>
+        <upuaut-link to="/old-home">Old home</upuaut-link>
+        <upuaut-link to="/old-user/3">Old user</upuaut-link>
+        <upuaut-link to="/does-not-exist">Missing</upuaut-link>
+        <upuaut-link to="/users/1" replace>Ada (replace)</upuaut-link>
+      </nav>
+      <main class="app-main">
+        <upuaut-view></upuaut-view>
+      </main>
+      <aside class="app-panel" aria-label="Router controls">
+        <demo-panel></demo-panel>
+      </aside>
+    </upuaut-router>
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>
