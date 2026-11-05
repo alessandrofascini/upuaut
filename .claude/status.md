@@ -2,9 +2,9 @@
 
 ## Current
 
-| Task                                              | Stage  | Mode     | Ultracode | Updated    |
-| ------------------------------------------------- | ------ | -------- | --------- | ---------- |
-| Upuaut router library + demo SPA (docs/router.md) | review | ATTENDED | yes       | 2026-11-05 |
+| Task                                              | Stage         | Mode     | Ultracode | Updated    |
+| ------------------------------------------------- | ------------- | -------- | --------- | ---------- |
+| Upuaut router library + demo SPA (docs/router.md) | finish (done) | ATTENDED | yes       | 2026-11-05 |
 
 ## Worktrees
 
@@ -13,12 +13,18 @@ gitGraph
   commit id: "a43fbc0 Initial commit"
   branch develop
   branch "feature/router"
-  commit id: "orient: scaffold + spec"
+  commit id: "orient"
+  commit id: "core"
+  commit id: "history"
+  commit id: "router"
+  commit id: "components"
+  commit id: "demo"
+  commit id: "finish"
 ```
 
-| Worktree path                       | Branch         | Task   | Stage | Last commit                     | Next step      | Tier |
-| ----------------------------------- | -------------- | ------ | ----- | ------------------------------- | -------------- | ---- |
-| /home/fascio/projects/github/upuaut | feature/router | router | build | see `git log -1 feature/router` | task 10 review | top  |
+| Worktree path                       | Branch         | Task   | Stage  | Last commit                     | Next step                                           | Tier |
+| ----------------------------------- | -------------- | ------ | ------ | ------------------------------- | --------------------------------------------------- | ---- |
+| /home/fascio/projects/github/upuaut | feature/router | router | finish | see `git log -1 feature/router` | user: review, then `git flow feature finish router` | top  |
 
 ## Tasks
 
@@ -33,8 +39,8 @@ gitGraph
 | 7      | Public exports                                                                    | src/index.ts                                                                  | `npm run typecheck`, `npm run build` | cheap     | done  |
 | 8      | Demo SPA (spec §11)                                                               | demo/                                                                         | `npm run build:demo`                 | cheap     | done  |
 | 9      | README                                                                            | README.md                                                                     | `npm run format:check`               | cheap     | done  |
-| 10     | Review squashed diff vs develop                                                   | —                                                                             | findings fixed                       | top       | todo  |
-| 11     | Full gate, maps, debrief                                                          | .claude/maps/                                                                 | `npm run check`                      | cheap+top | todo  |
+| 10     | Review squashed diff vs develop                                                   | —                                                                             | findings fixed                       | top       | done  |
+| 11     | Full gate, maps, debrief                                                          | .claude/maps/                                                                 | `npm run check`                      | cheap+top | done  |
 
 ## Decisions
 
@@ -55,3 +61,4 @@ gitGraph
 | 2026-11-05 | Lazy component result cached by writing `record.component`                     | simplest cache; view reads record directly                                             | top tier                   |
 | 2026-11-05 | View/link wait for `<upuaut-router>` upgrade (`connectRouter` + `whenDefined`) | demo smoke test found HTML-first usage threw: dependencies are defined before the host | top tier                   |
 | 2026-11-05 | Demo smoke test tests/demo.test.ts (happy-dom) instead of browser e2e          | e2e only on request                                                                    | top tier                   |
+| 2026-11-05 | Review findings in .claude/outputs/review.md; limitations 2-4 accepted for v1  | review                                                                                 | top tier                   |

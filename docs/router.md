@@ -2,7 +2,7 @@
 
 > Upuaut, "the opener of the ways": a client-side router for web components, built on [khnum](https://github.com/alessandrofascini/khnum).
 >
-> Status: **draft spec** for `feature/router`. Sections marked _(gate)_ are open choices.
+> Status: implemented on `feature/router` (v1 scope: §10, hash history included, no declarative `<upuaut-route>`).
 
 The API borrows from two well-known routers:
 

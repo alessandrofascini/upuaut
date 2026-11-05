@@ -40,3 +40,8 @@
 ## Environment notes
 
 - Global npm prefix /usr/local is root-owned: global tools go through `pnpm add -g` (~/.local/share/pnpm).
+
+## Maps
+
+- Anchor check excludes the maps themselves: `git grep -c -F -- '<anchor>' -- ':!.claude'` must total 1.
+- `tree-sitter tags` has no TypeScript tags.scm on this host; use `tree-sitter query` or `git grep` definition patterns.
