@@ -8,3 +8,4 @@ coverage
 .vitest/
 test-results/
 playwright-report/
+dist-docs/

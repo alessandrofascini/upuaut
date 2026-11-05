@@ -42,35 +42,59 @@ import type {
   RouteRecord,
 } from "./types";
 
+/** Options for {@link createRouter}. */
 export interface RouterOptions {
+  /** Where locations are read and written: web, hash or memory history. */
   history: RouterHistory;
+  /** The route table. */
   routes: RouteRecord[];
 }
 
+/** Called after every navigation; `failure` is set when it did not complete. */
 export type AfterEachHook = (
   to: RouteLocation,
   from: RouteLocation,
   failure?: NavigationFailure,
 ) => void;
 
+/** Called after every completed navigation, before {@link AfterEachHook}s. */
 export type RouteListener = (to: RouteLocation, from: RouteLocation) => void;
 
+/** Resolves with `undefined` on success, or with a {@link NavigationFailure}. */
 export type NavigationResult = Promise<NavigationFailure | void>;
 
+/** The router returned by {@link createRouter}. */
 export interface Router {
+  /** The location being shown; {@link START_LOCATION} before the first navigation. */
   readonly currentRoute: RouteLocation;
+  /** The history the router was created with. */
   readonly history: RouterHistory;
+  /** Navigates and adds a history entry. Rejects only for errors (see {@link UpuautError}). */
   push(to: RouteLocationRaw): NavigationResult;
+  /** Navigates and replaces the current history entry. */
   replace(to: RouteLocationRaw): NavigationResult;
+  /** Same as the browser Back button. */
   back(): void;
+  /** Same as the browser Forward button. */
   forward(): void;
+  /** Moves `delta` entries through the history (negative = back). */
   go(delta: number): void;
-  resolve(to: RouteLocationRaw): RouteLocation & {href: string};
+  /** Resolves a target without navigating; `href` is ready for an `<a>`. Throws for an unknown name or missing param. */
+  resolve(to: RouteLocationRaw): RouteLocation & {
+    /** URL for an `<a href>`, including the history base or `#`. */
+    href: string;
+  };
+  /** Adds a global guard. Returns a function that removes it. */
   beforeEach(guard: NavigationGuard): () => void;
+  /** Adds a hook that sees every outcome. Returns a function that removes it. */
   afterEach(hook: AfterEachHook): () => void;
+  /** Listens to completed navigations. Returns a function that stops listening. */
   subscribe(listener: RouteListener): () => void;
+  /** Resolves after the initial navigation started by {@link Router.start}. */
   isReady(): Promise<void>;
+  /** Listens to the history and navigates to its current location. `<upuaut-router>` calls it for you. */
   start(): Promise<void>;
+  /** Stops listening to the history. */
   stop(): void;
 }
 
@@ -123,6 +147,23 @@ function splitRaw(raw: string): {path: string; query: Query; hash: string} {
   return {path: path.startsWith("/") ? path : `/${path}`, query, hash: hash === "#" ? "" : hash};
 }
 
+/**
+ * Creates a router.
+ *
+ * @example
+ * ```ts
+ * const router = createRouter({
+ *   history: createWebHistory(),
+ *   routes: [
+ *     {path: "/", component: HomePage},
+ *     {path: "/users/:id", name: "user", component: UserPage},
+ *     {path: "*", component: NotFoundPage},
+ *   ],
+ * });
+ * ```
+ *
+ * @throws {@link UpuautError} for an invalid path pattern or a duplicate route name.
+ */
 export function createRouter(options: RouterOptions): Router {
   const {history} = options;
   const matchers: Matcher[] = [];

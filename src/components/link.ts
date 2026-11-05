@@ -3,14 +3,21 @@ import type {Router} from "../router";
 import {connectRouter} from "./host";
 
 type LinkProps = {
+  /** Attribute `to`: the target location, e.g. `/users/42?tab=info`. */
   to: string | null;
+  /** Attribute `replace`: when present, navigate with `replace` instead of `push`. */
   replace: string | null;
+  /** Attribute `target`: copied to the anchor; any value other than `_self` keeps the browser behavior. */
   target: string | null;
+  /** Attribute `active-class`: class for active links; default {@link DEFAULT_ACTIVE_CLASS}. */
   activeClass: string | null;
+  /** Attribute `exact-active-class`: class for exact matches; default {@link DEFAULT_EXACT_ACTIVE_CLASS}. */
   exactActiveClass: string | null;
 };
 
+/** Default class of a link whose target is the current path or one of its parents. */
 export const DEFAULT_ACTIVE_CLASS = "upuaut-link-active";
+/** Default class of a link whose target is exactly the current path. */
 export const DEFAULT_EXACT_ACTIVE_CLASS = "upuaut-link-exact-active";
 
 const normalize = (path: string): string =>
@@ -38,10 +45,12 @@ export class UpuautLink extends Shape<LinkProps>("upuaut-link", [
   #router: Router | undefined;
   #classes: string[] = [];
 
+  /** The rendered `<a>`, available once the link is connected. */
   get anchor(): HTMLAnchorElement | undefined {
     return this.#anchor;
   }
 
+  /** @internal khnum lifecycle hook. */
   override render(): void {
     if (!this.#anchor || this.#anchor.parentNode !== this) {
       const anchor = document.createElement("a");
@@ -68,15 +77,19 @@ export class UpuautLink extends Shape<LinkProps>("upuaut-link", [
     this.#update();
   }
 
+  /** @internal */
   renderTo(): void {
     this.#update();
   }
+  /** @internal */
   renderTarget(): void {
     this.#update();
   }
+  /** @internal */
   renderActiveClass(): void {
     this.#update();
   }
+  /** @internal */
   renderExactActiveClass(): void {
     this.#update();
   }

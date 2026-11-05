@@ -1,0 +1,9 @@
+{
+  "name": "upuaut-typedoc",
+  "private": true,
+  "description": "TypeDoc needs the TypeScript 6 JS API; the root package uses TypeScript 7 (native, no JS API).",
+  "devDependencies": {
+    "typedoc": "0.28.20",
+    "typescript": "6.0.3"
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "name": "Upuaut",
+  "entryPoints": ["src/index.ts"],
+  "tsconfig": "tsconfig.json",
+  "out": "dist-docs",
+  "readme": "README.md",
+  "projectDocuments": ["docs/guide.md", "docs/router.md", "docs/roadmap.md"],
+  "excludePrivate": true,
+  "excludeInternal": true,
+  "categorizeByGroup": true,
+  "validation": {
+    "notExported": true,
+    "invalidLink": true,
+    "notDocumented": true
+  },
+  "treatWarningsAsErrors": true,
+  "disableSources": true,
+  "highlightLanguages": [
+    "bash",
+    "sh",
+    "console",
+    "css",
+    "html",
+    "javascript",
+    "json",
+    "jsonc",
+    "yaml",
+    "tsx",
+    "typescript",
+    "ts",
+    "mermaid"
+  ]
+}

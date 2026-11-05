@@ -26,6 +26,7 @@ export class UpuautRouter
   #unsubscribe: (() => void) | undefined;
   #waiters = new Set<(router: Router) => void>();
 
+  /** The router for this subtree. Setting it starts the router and updates every view and link inside. */
   get router(): Router | undefined {
     return this.#router;
   }
@@ -53,6 +54,7 @@ export class UpuautRouter
     };
   }
 
+  /** @internal khnum lifecycle hook. */
   override render(): void {
     // Code may have set `router` before this element was defined; that value
     // sits in an own property that hides our setter. Re-apply it.

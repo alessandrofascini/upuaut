@@ -1,3 +1,7 @@
+---
+title: Specification
+---
+
 # Upuaut — router specification
 
 > Upuaut, "the opener of the ways": a client-side router for web components, built on [khnum](https://github.com/alessandrofascini/khnum).

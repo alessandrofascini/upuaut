@@ -6,7 +6,14 @@ Upuaut borrows its API from Vue Router and React Router: a `createRouter()` fact
 
 ## Status
 
-`0.0.0`, in development on `feature/router`. The full specification is in [docs/router.md](docs/router.md).
+`0.0.0`, in development on `feature/router`.
+
+| Document                           | Content                                             |
+| ---------------------------------- | --------------------------------------------------- |
+| [docs/guide.md](docs/guide.md)     | task-oriented recipes                               |
+| [docs/router.md](docs/router.md)   | full specification                                  |
+| [docs/roadmap.md](docs/roadmap.md) | v1 gaps and planned features, with proposed designs |
+| `npm run docs`                     | generated API reference in `dist-docs/` (TypeDoc)   |
 
 ## Install
 
@@ -59,7 +66,7 @@ The element rendered by `<upuaut-view>` receives the current `route` (`RouteLoca
 | `createRouter`                                                 | function                                           | [spec §5](docs/router.md#5-router-api)          |
 | `createWebHistory`, `createHashHistory`, `createMemoryHistory` | functions                                          | [spec §7](docs/router.md#7-history-backends)    |
 | `UpuautRouter`, `UpuautView`, `UpuautLink`                     | custom elements                                    | [spec §8](docs/router.md#8-web-components)      |
-| `NavigatedEvent`                                               | `ChangedEvent<RouteLocation>` (`upuaut-navigated`) | [spec §8](docs/router.md#upuaut-router)         |
+| `NavigatedEvent`                                               | `ChangedEvent<RouteLocation>` (`upuaut-navigated`) | [spec §8](docs/router.md#8-web-components)      |
 | `UpuautError`, `isNavigationFailure`                           | errors                                             | [spec §9](docs/router.md#9-errors-and-failures) |
 | `parseQuery`, `stringifyQuery`                                 | helpers                                            | —                                               |
 
@@ -78,6 +85,7 @@ The element rendered by `<upuaut-view>` receives the current `route` (`RouteLoca
 | `npm run typecheck`    | `tsc --noEmit`                                                                                   |
 | `npm run build`        | library build to `dist/`                                                                         |
 | `npm run build:demo`   | demo build to `dist-demo/`                                                                       |
+| `npm run docs`         | API reference to `dist-docs/` (fails on undocumented exports or broken links)                    |
 | `npm run check`        | format, type-check, tests and both builds                                                        |
 
 ## License

@@ -14,8 +14,11 @@ import type {Router} from "../router";
 export const ROUTER_TAG = "upuaut-router";
 export const VIEW_TAG = "upuaut-view";
 
+/** What views and links need from `<upuaut-router>`; implemented by {@link UpuautRouter}. */
 export interface RouterHost extends Element {
+  /** The current router, if set. */
   readonly router: Router | undefined;
+  /** Calls `cb` with the router now and on every change. Returns a function that stops the calls. */
   onRouter(cb: (router: Router) => void): () => void;
 }
 

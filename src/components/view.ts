@@ -14,14 +14,19 @@ import {ancestors, connectRouter, VIEW_TAG} from "./host";
  * The rendered element receives the current location as its `route`
  * property.
  */
-export class UpuautView extends Shape<{name: string | null}>(VIEW_TAG, ["name"]) {
+export class UpuautView extends Shape<{
+  /** Attribute `name`: reserved for named views (not used in v1). */
+  name: string | null;
+}>(VIEW_TAG, ["name"]) {
   #record: RouteRecord | undefined;
   #child: Element | undefined;
 
+  /** Number of `<upuaut-view>` ancestors: the index in `route.matched` this view renders. */
   get depth(): number {
     return ancestors(this).filter((el) => el.localName === VIEW_TAG).length;
   }
 
+  /** @internal khnum lifecycle hook. */
   override render(): void {
     let unsubscribe: (() => void) | undefined;
     const stopWaiting = connectRouter(this, "UpuautView", (router: Router) => {

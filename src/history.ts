@@ -21,11 +21,13 @@
  * used by Vue Router.
  */
 
+/** Extra data passed to a {@link HistoryListener}. */
 export interface HistoryNavigationInfo {
   /** Entries moved: negative for back, positive for forward, 0 when unknown. */
   delta: number;
 }
 
+/** Called on pops (back, forward, go, manual hash edits) with the new and old location. */
 export type HistoryListener = (to: string, from: string, info: HistoryNavigationInfo) => void;
 
 /*
@@ -35,14 +37,21 @@ export type HistoryListener = (to: string, from: string, info: HistoryNavigation
  * - honor go(delta, false): move without notifying listeners.
  * The router relies on all three to undo pops that a guard rejects.
  */
+/** Where the router reads and writes locations. Create one with a `create*History` factory. */
 export interface RouterHistory {
+  /** Current location: path + query + hash, without the base. */
   readonly location: string;
+  /** Adds an entry. `state` is stored next to Upuaut's own position key. */
   push(to: string, state?: unknown): void;
+  /** Replaces the current entry. */
   replace(to: string, state?: unknown): void;
   /** Moves through the history. With `triggerListeners = false` the move is silent. */
   go(delta: number, triggerListeners?: boolean): void;
+  /** Listens to pops. Returns a function that stops listening. */
   listen(cb: HistoryListener): () => void;
+  /** The `href` for a location, with the base (web) or `#` (hash) added. */
   createHref(to: string): string;
+  /** Removes all listeners and window event handlers. */
   destroy(): void;
 }
 

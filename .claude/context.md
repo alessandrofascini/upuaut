@@ -24,6 +24,7 @@
 | Full gate     | `npm run check`                                                                                             |
 | Browser tests | `npm run test:browser` (Vitest browser mode, headless Chromium; components, history, demo; not in `check`)  |
 | E2E           | `npm run test:e2e` (Playwright 1.64.1, e2e/*.spec.ts; builds demo, `vite preview` on :4173; not in `check`) |
+| API docs      | `npm run docs` (TypeDoc 0.28.20 + TS 6.0.3 in tools/typedoc; warnings are errors, notDocumented on)         |
 
 ## Host tool versions
 

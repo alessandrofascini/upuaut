@@ -1,6 +1,6 @@
 # TODO
 
-Remaining work for Upuaut after `feature/router`. Items marked 🔒 need explicit approval (merge, push, publish, deploy).
+Remaining work for Upuaut after `feature/router`. Details and proposed designs for the library items: [docs/roadmap.md](docs/roadmap.md). Items marked 🔒 need explicit approval (merge, push, publish, deploy).
 
 ## Release
 
@@ -38,5 +38,7 @@ Remaining work for Upuaut after `feature/router`. Items marked 🔒 need explici
 
 ## Documentation
 
-- [ ] Generated API reference (e.g. TypeDoc) from the function comments
-- [ ] Guide pages: nested routes, guards, history modes, migrating from Vue Router / React Router
+- [x] Generated API reference: `npm run docs` (TypeDoc, every export documented)
+- [x] Guide: docs/guide.md (recipes)
+- [x] Roadmap with designs for the gaps and out-of-scope items: docs/roadmap.md
+- [ ] Migration notes from Vue Router / React Router
