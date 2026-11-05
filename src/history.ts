@@ -1,10 +1,16 @@
-export type HistoryListener = (to: string, from: string) => void;
+export interface HistoryNavigationInfo {
+  /** Entries moved: negative for back, positive for forward, 0 when unknown. */
+  delta: number;
+}
+
+export type HistoryListener = (to: string, from: string, info: HistoryNavigationInfo) => void;
 
 export interface RouterHistory {
   readonly location: string;
   push(to: string, state?: unknown): void;
   replace(to: string, state?: unknown): void;
-  go(delta: number): void;
+  /** Moves through the history. With `triggerListeners = false` the move is silent. */
+  go(delta: number, triggerListeners?: boolean): void;
   listen(cb: HistoryListener): () => void;
   createHref(to: string): string;
   destroy(): void;
@@ -34,12 +40,14 @@ export function createMemoryHistory(initial = "/"): RouterHistory {
     replace(to) {
       stack[index] = ensureLeadingSlash(to);
     },
-    go(delta) {
+    go(delta, triggerListeners = true) {
       const next = Math.min(Math.max(index + delta, 0), stack.length - 1);
       if (next === index) return;
       const from = stack[index];
+      const moved = next - index;
       index = next;
-      for (const cb of [...listeners]) cb(stack[index], from);
+      if (!triggerListeners) return;
+      for (const cb of [...listeners]) cb(stack[index], from, {delta: moved});
     },
     listen(cb) {
       listeners.add(cb);
@@ -56,16 +64,49 @@ export function createMemoryHistory(initial = "/"): RouterHistory {
   };
 }
 
+interface PositionState {
+  upuautPosition?: number;
+}
+
+const readPosition = (): number | undefined => {
+  const state = window.history.state as PositionState | null;
+  return typeof state?.upuautPosition === "number" ? state.upuautPosition : undefined;
+};
+
+const withPosition = (state: unknown, position: number): object => ({
+  ...(typeof state === "object" && state !== null ? state : {}),
+  upuautPosition: position,
+});
+
 function createBrowserHistory(read: () => string, toHref: (to: string) => string): RouterHistory {
   const listeners = new Set<HistoryListener>();
   let current = read();
+  let position = readPosition() ?? 0;
+  let silentPops = 0;
+  if (readPosition() === undefined) {
+    window.history.replaceState(withPosition(window.history.state, position), "");
+  }
 
   const onPop = (): void => {
     const next = read();
     if (next === current) return;
     const from = current;
+    const nextPosition = readPosition();
+    let delta = 0;
+    if (nextPosition === undefined) {
+      // A new entry without our state, e.g. the user edited the hash.
+      position += 1;
+      window.history.replaceState(withPosition(window.history.state, position), "");
+    } else {
+      delta = nextPosition - position;
+      position = nextPosition;
+    }
     current = next;
-    for (const cb of [...listeners]) cb(next, from);
+    if (silentPops > 0) {
+      silentPops -= 1;
+      return;
+    }
+    for (const cb of [...listeners]) cb(next, from, {delta});
   };
   window.addEventListener("popstate", onPop);
   window.addEventListener("hashchange", onPop);
@@ -75,14 +116,16 @@ function createBrowserHistory(read: () => string, toHref: (to: string) => string
       return current;
     },
     push(to, state = null) {
-      window.history.pushState(state, "", toHref(to));
+      position += 1;
+      window.history.pushState(withPosition(state, position), "", toHref(to));
       current = read();
     },
     replace(to, state = null) {
-      window.history.replaceState(state, "", toHref(to));
+      window.history.replaceState(withPosition(state, position), "", toHref(to));
       current = read();
     },
-    go(delta) {
+    go(delta, triggerListeners = true) {
+      if (!triggerListeners) silentPops += 1;
       window.history.go(delta);
     },
     listen(cb) {

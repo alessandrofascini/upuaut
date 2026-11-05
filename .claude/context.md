@@ -44,4 +44,5 @@
 ## Maps
 
 - Anchor check excludes the maps themselves: `git grep -c -F -- '<anchor>' -- ':!.claude'` must total 1.
-- `tree-sitter tags` has no TypeScript tags.scm on this host; use `tree-sitter query` or `git grep` definition patterns.
+- `tree-sitter tags <file>` works (JS grammar linked).
+- LSP references: `node .claude/scripts/lsp-references.mjs "$PWD" <file> <line0> <char0>` (verified: 13 refs of createRouter).

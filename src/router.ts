@@ -189,10 +189,16 @@ export function createRouter(options: RouterOptions): Router {
     );
   };
 
+  const restoreAfterPop = (from: RouteLocation, delta: number): void => {
+    if (delta !== 0) history.go(-delta, false);
+    else history.replace(from.fullPath);
+  };
+
   const navigate = async (
     raw: RouteLocationRaw,
     mode: "push" | "replace" | "pop" | "initial",
     redirects = 0,
+    popDelta = 0,
   ): NavigationResult => {
     if (redirects > MAX_REDIRECTS) {
       throw new UpuautError("navigate", `more than ${MAX_REDIRECTS} redirects`);
@@ -224,7 +230,7 @@ export function createRouter(options: RouterOptions): Router {
       const result = await guard(to, from);
       if (cancelled()) return finish(to, from, "cancelled");
       if (result === false) {
-        if (mode === "pop") history.replace(from.fullPath);
+        if (mode === "pop") restoreAfterPop(from, popDelta);
         return finish(to, from, "aborted");
       }
       if (result !== undefined && result !== true) {
@@ -274,8 +280,8 @@ export function createRouter(options: RouterOptions): Router {
     isReady: () => ready,
     start() {
       if (started) return started;
-      unlisten = history.listen((to) => {
-        navigate(to, "pop").catch((err: unknown) => console.error(err));
+      unlisten = history.listen((to, _from, {delta}) => {
+        navigate(to, "pop", 0, delta).catch((err: unknown) => console.error(err));
       });
       started = navigate(history.location, "initial").then(
         () => markReady(),

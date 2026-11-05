@@ -211,10 +211,13 @@ describe("guards", () => {
   it("restores the URL when a pop navigation is aborted", async () => {
     const {router, history} = await setup();
     await router.push("/users/1");
-    router.beforeEach(() => false);
+    const stop = router.beforeEach(() => false);
     history.go(-1);
     await vi.waitFor(() => expect(history.location).toBe("/users/1"));
     expect(router.currentRoute.path).toBe("/users/1");
+    stop();
+    history.go(-1);
+    await vi.waitFor(() => expect(router.currentRoute.path).toBe("/"));
   });
 });
 

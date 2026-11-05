@@ -154,6 +154,8 @@ Order (Vue Router): global `beforeEach` (registration order) → `beforeEnter` o
 
 Redirect chains are limited to 10 hops; the 11th throws `UpuautError`.
 
+An aborted back/forward navigation is undone with a silent `history.go(-delta)`, so no history entry is rewritten. Browser histories store the entry position in `history.state.upuautPosition` (user state passed to `push`/`replace` is kept).
+
 ## 7. History backends
 
 | Factory                              | URL form      | Use                                               |
@@ -167,8 +169,8 @@ interface RouterHistory {
   readonly location: string; // path + query + hash, base removed
   push(to: string, state?: unknown): void;
   replace(to: string, state?: unknown): void;
-  go(delta: number): void;
-  listen(cb: (to: string, from: string) => void): () => void; // pop navigations only
+  go(delta: number, triggerListeners?: boolean): void; // false = silent move
+  listen(cb: (to: string, from: string, info: {delta: number}) => void): () => void; // pops only
   createHref(to: string): string;
   destroy(): void;
 }
