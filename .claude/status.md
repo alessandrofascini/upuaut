@@ -4,7 +4,7 @@
 
 | Task                                              | Stage     | Mode     | Ultracode | Updated    |
 | ------------------------------------------------- | --------- | -------- | --------- | ---------- |
-| Upuaut router library + demo SPA (docs/router.md) | build 5/9 | ATTENDED | yes       | 2026-11-05 |
+| Upuaut router library + demo SPA (docs/router.md) | build 7/9 | ATTENDED | yes       | 2026-11-05 |
 
 ## Worktrees
 
@@ -16,9 +16,9 @@ gitGraph
   commit id: "orient: scaffold + spec"
 ```
 
-| Worktree path                       | Branch         | Task   | Stage | Last commit                     | Next step         | Tier |
-| ----------------------------------- | -------------- | ------ | ----- | ------------------------------- | ----------------- | ---- |
-| /home/fascio/projects/github/upuaut | feature/router | router | build | see `git log -1 feature/router` | task 6 components | top  |
+| Worktree path                       | Branch         | Task   | Stage | Last commit                     | Next step             | Tier |
+| ----------------------------------- | -------------- | ------ | ----- | ------------------------------- | --------------------- | ---- |
+| /home/fascio/projects/github/upuaut | feature/router | router | build | see `git log -1 feature/router` | task 8 demo, 9 README | top  |
 
 ## Tasks
 
@@ -29,8 +29,8 @@ gitGraph
 | 3      | Path compile, match, rank (spec §3)                                               | src/path.ts `compilePath`, `rankPath`                                         | tests/path.test.ts                   | top       | done  |
 | 4      | History backends (spec §7)                                                        | src/history.ts `createMemoryHistory`, `createWebHistory`, `createHashHistory` | tests/history.test.ts                | top       | done  |
 | 5      | Router core: resolve, push/replace, guards, redirects, lazy, failures (spec §4-6) | src/router.ts `createRouter`                                                  | tests/router.test.ts                 | top       | done  |
-| 6      | `<upuaut-router>`, `<upuaut-view>`, `<upuaut-link>` (spec §8)                     | src/components/*.ts                                                           | tests/components/*.test.ts           | top       | todo  |
-| 7      | Public exports                                                                    | src/index.ts                                                                  | `npm run typecheck`, `npm run build` | cheap     | todo  |
+| 6      | `<upuaut-router>`, `<upuaut-view>`, `<upuaut-link>` (spec §8)                     | src/components/*.ts                                                           | tests/components/*.test.ts           | top       | done  |
+| 7      | Public exports                                                                    | src/index.ts                                                                  | `npm run typecheck`, `npm run build` | cheap     | done  |
 | 8      | Demo SPA (spec §11)                                                               | demo/                                                                         | `npm run build:demo`                 | cheap     | todo  |
 | 9      | README                                                                            | README.md                                                                     | `npm run format:check`               | cheap     | todo  |
 | 10     | Review squashed diff vs develop                                                   | —                                                                             | findings fixed                       | top       | todo  |
