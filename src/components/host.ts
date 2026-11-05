@@ -20,12 +20,32 @@ export function ancestors(node: Node): Element[] {
   return out;
 }
 
-export function findRouterHost(node: Node, caller: string): RouterHost {
+const isUpgraded = (el: Element): el is RouterHost => "onRouter" in el;
+
+/**
+ * Calls `cb` with the router of the closest `<upuaut-router>`, now and whenever it changes.
+ * Waits for the host to be upgraded when its definition comes later than `node`'s.
+ * Returns a function that stops listening.
+ */
+export function connectRouter(
+  node: Element,
+  caller: string,
+  cb: (router: Router) => void,
+): () => void {
   const host = ancestors(node).find((el) => el.localName === ROUTER_TAG);
-  if (!host || !("onRouter" in host)) {
-    throw new UpuautError(caller, `must be placed inside <${ROUTER_TAG}>`);
-  }
-  return host as RouterHost;
+  if (!host) throw new UpuautError(caller, `must be placed inside <${ROUTER_TAG}>`);
+  if (isUpgraded(host)) return host.onRouter(cb);
+
+  let stop: (() => void) | undefined;
+  let cancelled = false;
+  customElements.whenDefined(ROUTER_TAG).then(() => {
+    if (cancelled || !node.isConnected || !isUpgraded(host)) return;
+    stop = host.onRouter(cb);
+  });
+  return () => {
+    cancelled = true;
+    stop?.();
+  };
 }
 
 export function adoptUpgradedProperty(el: object, prop: string): void {

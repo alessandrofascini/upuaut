@@ -6,6 +6,30 @@
     <title>Upuaut demo</title>
   </head>
   <body>
+    <style>
+      upuaut-link + upuaut-link {
+        margin-left: 1rem;
+      }
+      .upuaut-link-exact-active {
+        font-weight: bold;
+      }
+      .upuaut-link-active {
+        text-decoration: underline;
+      }
+    </style>
+    <upuaut-router>
+      <nav>
+        <upuaut-link to="/">Home</upuaut-link>
+        <upuaut-link to="/users">Users</upuaut-link>
+        <upuaut-link to="/about">About</upuaut-link>
+        <upuaut-link to="/admin">Admin</upuaut-link>
+        <upuaut-link to="/old-home">Old home</upuaut-link>
+        <upuaut-link to="/does-not-exist">Missing</upuaut-link>
+      </nav>
+      <main>
+        <upuaut-view></upuaut-view>
+      </main>
+    </upuaut-router>
     <script type="module" src="./main.ts"></script>
   </body>
 </html>

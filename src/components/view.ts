@@ -1,7 +1,7 @@
 import {mold, Shape} from "khnum";
 import {isLazyComponent, type Router} from "../router";
 import type {RouteLocation, RouteRecord} from "../types";
-import {ancestors, findRouterHost, VIEW_TAG} from "./host";
+import {ancestors, connectRouter, VIEW_TAG} from "./host";
 
 export class UpuautView extends Shape<{name: string | null}>(VIEW_TAG, ["name"]) {
   #record: RouteRecord | undefined;
@@ -12,9 +12,8 @@ export class UpuautView extends Shape<{name: string | null}>(VIEW_TAG, ["name"])
   }
 
   override render(): void {
-    const host = findRouterHost(this, "UpuautView");
     let unsubscribe: (() => void) | undefined;
-    const stopWaiting = host.onRouter((router: Router) => {
+    const stopWaiting = connectRouter(this, "UpuautView", (router: Router) => {
       unsubscribe?.();
       unsubscribe = router.subscribe((to) => this.#update(to));
       this.#update(router.currentRoute);

@@ -1,6 +1,6 @@
 import {Shape} from "khnum";
 import type {Router} from "../router";
-import {findRouterHost} from "./host";
+import {connectRouter} from "./host";
 
 type LinkProps = {
   to: string | null;
@@ -40,9 +40,8 @@ export class UpuautLink extends Shape<LinkProps>("upuaut-link", [
     }
     this.addEventListener("click", (event) => this.#onClick(event as MouseEvent), {}, this.#anchor);
 
-    const host = findRouterHost(this, "UpuautLink");
     let unsubscribe: (() => void) | undefined;
-    const stopWaiting = host.onRouter((router) => {
+    const stopWaiting = connectRouter(this, "UpuautLink", (router) => {
       unsubscribe?.();
       this.#router = router;
       unsubscribe = router.subscribe(() => this.#update());
