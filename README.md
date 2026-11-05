@@ -63,6 +63,10 @@ The element rendered by `<upuaut-view>` receives the current `route` (`RouteLoca
 | `UpuautError`, `isNavigationFailure`                           | errors                                             | [spec §9](docs/router.md#9-errors-and-failures) |
 | `parseQuery`, `stringifyQuery`                                 | helpers                                            | —                                               |
 
+## Demo
+
+`npm run dev` opens a demo SPA that shows every feature. A control panel switches the history mode (web, hash, memory), toggles guards, adds delays to see cancellation and lazy loading, navigates by path or by name, and logs every navigation and failure.
+
 ## Development
 
 | Command                | Does                                                                                             |

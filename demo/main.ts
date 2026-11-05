@@ -1,33 +1,30 @@
-import {createRouter, createWebHistory, UpuautRouter} from "upuaut";
-import {AdminPage} from "./pages/admin";
-import {HomePage} from "./pages/home";
-import {LoginPage} from "./pages/login";
-import {NotFoundPage} from "./pages/not-found";
-import {UserPage} from "./pages/user";
-import {UsersPage} from "./pages/users";
+import {UpuautRouter, type Router} from "upuaut";
+import "./style.css";
+import {addLog} from "./log";
+import {DemoPanel} from "./panel";
+import {createDemoRouter} from "./router";
+import {onSettings, settings} from "./settings";
 
-const router = createRouter({
-  history: createWebHistory(),
-  routes: [
-    {path: "/", name: "home", component: HomePage},
-    {
-      path: "/users",
-      component: UsersPage,
-      children: [{path: ":id", name: "user", component: UserPage}],
-    },
-    {path: "/about", component: () => import("./pages/about")},
-    {path: "/login", component: LoginPage},
-    {path: "/admin", component: AdminPage, meta: {requiresAuth: true}},
-    {path: "/old-home", redirect: "/"},
-    {path: "*", component: NotFoundPage},
-  ],
-});
-
-router.beforeEach((to) =>
-  to.meta.requiresAuth && localStorage.getItem("upuaut-demo-auth") !== "1"
-    ? {path: "/login", query: {redirect: to.fullPath}}
-    : undefined,
-);
+const initialLocation = (): string => {
+  const {pathname, search, hash} = window.location;
+  return hash.startsWith("#/") ? hash.slice(1) : `${pathname}${search}${hash}`;
+};
 
 UpuautRouter.fire();
-(document.querySelector("upuaut-router") as UpuautRouter).router = router;
+DemoPanel.fire();
+
+const host = document.querySelector("upuaut-router") as UpuautRouter;
+let router: Router = createDemoRouter(settings.history, initialLocation());
+host.router = router;
+
+// Swapping the router at runtime: the old one stops listening, and every
+// view and link follows the new one through <upuaut-router>.
+onSettings((next, changed) => {
+  if (!changed.includes("history")) return;
+  const at = router.currentRoute.fullPath;
+  router.stop();
+  router.history.destroy();
+  router = createDemoRouter(next.history, at);
+  host.router = router;
+  addLog("info", `history → ${next.history}`);
+});

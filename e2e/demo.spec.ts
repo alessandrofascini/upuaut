@@ -76,11 +76,11 @@ test("record redirect and catch-all", async ({page}) => {
 test("auth guard redirects to login and back", async ({page}) => {
   await nav(page, "Admin").click();
   await expect(page).toHaveURL("/login?redirect=%2Fadmin");
-  await page.getByRole("button", {name: "Log in"}).click();
+  await page.locator("main").getByRole("button", {name: "Log in"}).click();
   await expect(page).toHaveURL("/admin");
   await expect(heading(page)).toHaveText("Admin");
 
-  await page.getByRole("button", {name: "Log out"}).click();
+  await page.locator("main").getByRole("button", {name: "Log out"}).click();
   await expect(page).toHaveURL("/");
   await page.goBack();
   await expect(page).toHaveURL("/login?redirect=%2Fadmin");

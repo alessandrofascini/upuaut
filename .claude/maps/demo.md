@@ -2,69 +2,63 @@
 
 ## Purpose
 
-Vite SPA (`demo/`, alias `upuaut` to `src/index.ts`) that exercises the library end to end.
-`demo/main.ts` builds the router with web history, a route table, an auth guard on `meta.requiresAuth`, and mounts it on `<upuaut-router>`.
-Pages in `demo/pages/*.ts` are khnum `Shape` components; `about.ts` is the lazy-loaded default export.
+Demo SPA showing every router feature: nested, lazy, query, optional, splat, hash, guards, redirects.
+`<demo-panel>` changes router behavior live (history mode, guards, delays) and shows route + log.
+Settings persist in localStorage; a history change swaps the Router on `<upuaut-router>`.
 
 ## Flows
 
-Bootstrap:
+```mermaid
+flowchart LR
+  main["main.ts"] --> make["createDemoRouter(mode, initial)"]
+  make --> hist["makeHistory: web / hash / memory"]
+  make --> guards["beforeEach: delay, block, auth"]
+  make --> after["afterEach -> addLog"]
+  main --> host["upuaut-router.router = router"]
+  panel["demo-panel"] --> upd["updateSettings"]
+  upd --> listen["onSettings in main.ts"]
+  listen -- "history changed" --> swap["stop + destroy old, create new"]
+  swap --> host
+  guards --> read["read settings on every navigation"]
+```
 
 ```mermaid
 flowchart LR
-  boot["demo/main.ts"] --> hist["createWebHistory()"]
-  hist --> cr["createRouter({history, routes})"]
-  cr --> guard["beforeEach(auth guard)"]
-  guard --> fire["UpuautRouter.fire()"]
-  fire --> set["element.router = router"]
-  set --> start["router.start()"]
-```
-
-Auth guard:
-
-```mermaid
-flowchart TD
-  to["navigation to route"] --> q{"to.meta.requiresAuth and no localStorage flag?"}
-  q -- yes --> login["redirect to /login?redirect=fullPath"]
-  q -- no --> ok["no result: navigation continues"]
-```
-
-Route table (path to page):
-
-```mermaid
-flowchart LR
-  root["/"] --> home["HomePage"]
-  users["/users"] --> usersP["UsersPage"]
-  usersP --> userP["/users/:id: UserPage"]
-  about["/about"] --> lazy["lazy import: AboutPage"]
-  login["/login"] --> loginP["LoginPage"]
-  admin["/admin (requiresAuth)"] --> adminP["AdminPage"]
-  old["/old-home"] --> redir["redirect to /"]
-  catch["*"] --> nf["NotFoundPage"]
+  panel["demo-panel"] --> onr["host.onRouter"]
+  panel --> evt["upuaut-navigated -> inspector"]
+  panel --> log["onLog -> log list"]
+  panel --> nav["push / replace / push by name / back / go"]
+  nav --> err["thrown UpuautError -> addLog error"]
 ```
 
 ## Key symbols
 
-| Symbol       | Kind  | Path                    | Grep anchor                                                                  | Role                                                                                 |
-| ------------ | ----- | ----------------------- | ---------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
-| route table  | const | demo/main.ts            | `    {path: "/old-home", redirect: "/"},`                                    | Route table entry for the redirect; the router is built around it in `createRouter`. |
-| auth guard   | call  | demo/main.ts            | `to.meta.requiresAuth && localStorage.getItem("upuaut-demo-auth")`           | Redirects `requiresAuth` routes to /login when not signed in.                        |
-| bootstrap    | call  | demo/main.ts            | `(document.querySelector("upuaut-router") as UpuautRouter).router = router;` | Attaches the router to the `<upuaut-router>` element.                                |
-| HomePage     | class | demo/pages/home.ts      | `export class HomePage extends Shape("demo-home")`                           | Page for `/`.                                                                        |
-| UsersPage    | class | demo/pages/users.ts     | `export class UsersPage extends Shape("demo-users")`                         | Page for `/users`, hosts the `:id` child view.                                       |
-| USERS        | const | demo/pages/users.ts     | `const USERS = [`                                                            | Fixture data for the users list.                                                     |
-| UserPage     | class | demo/pages/user.ts      | `export class UserPage extends Shape("demo-user")`                           | Page for `/users/:id`, reads route params.                                           |
-| LoginPage    | class | demo/pages/login.ts     | `export class LoginPage extends Shape("demo-login")`                         | Page for `/login`, target of the auth redirect.                                      |
-| AdminPage    | class | demo/pages/admin.ts     | `export class AdminPage extends Shape("demo-admin")`                         | Page for `/admin`, guarded by `meta.requiresAuth`.                                   |
-| AboutPage    | class | demo/pages/about.ts     | `export default class AboutPage extends Shape("demo-about")`                 | Lazy-loaded page for `/about`.                                                       |
-| NotFoundPage | class | demo/pages/not-found.ts | `export class NotFoundPage extends Shape("demo-not-found")`                  | Catch-all page for `*`.                                                              |
+| Symbol           | Kind     | Path                 | Grep anchor                                                  | Role                                        |
+| ---------------- | -------- | -------------------- | ------------------------------------------------------------ | ------------------------------------------- |
+| createDemoRouter | function | demo/router.ts       | `export function createDemoRouter(`                          | Routes, guards and afterEach log            |
+| makeHistory      | function | demo/router.ts       | `function makeHistory(`                                      | History per mode; rewrites URL first        |
+| block guard      | call     | demo/router.ts       | `router.beforeEach((_to, from) =>`                           | Aborts when "block" is on                   |
+| log hook         | call     | demo/router.ts       | `router.afterEach((to, from, failure) => {`                  | Writes successes and failures to the log    |
+| router swap      | call     | demo/main.ts         | `onSettings((next, changed) => {`                            | Replaces the Router on history change       |
+| DemoPanel        | class    | demo/panel.ts        | `export class DemoPanel extends Shape("demo-panel")`         | Control panel, inspector, log               |
+| settings         | const    | demo/settings.ts     | `export const settings: DemoSettings`                        | Live settings read by guards                |
+| updateSettings   | function | demo/settings.ts     | `export function updateSettings(`                            | Patch, persist, notify                      |
+| addLog           | function | demo/log.ts          | `export function addLog(`                                    | Append a log entry (max 50)                 |
+| RoutedPage       | function | demo/util.ts         | `export function RoutedPage(`                                | Base page that re-renders on `route` change |
+| SearchPage       | class    | demo/pages/search.ts | `export class SearchPage extends`                            | Query demo `/search?q=`                     |
+| PostsPage        | class    | demo/pages/posts.ts  | `export class PostsPage extends`                             | Optional param `/posts/:slug?`              |
+| FilesPage        | class    | demo/pages/files.ts  | `export class FilesPage extends`                             | Splat `/files/:rest*`                       |
+| DocsPage         | class    | demo/pages/docs.ts   | `export class DocsPage extends`                              | Hash sections `/docs#id`                    |
+| UsersPage        | class    | demo/pages/users.ts  | `export class UsersPage extends Shape("demo-users")`         | Layout with nested `<upuaut-view>`          |
+| UserPage         | class    | demo/pages/user.ts   | `export class UserPage extends Shape("demo-user")`           | `/users/:id`, reused on param change        |
+| AboutPage        | class    | demo/pages/about.ts  | `export default class AboutPage extends Shape("demo-about")` | Lazy page                                   |
 
 ## Dependencies
 
-| Direction | Area       | Through                                                                               |
-| --------- | ---------- | ------------------------------------------------------------------------------------- |
-| out       | router     | `createRouter`, `beforeEach`, `start`, via the `upuaut` alias                         |
-| out       | history    | `createWebHistory`                                                                    |
-| out       | components | `UpuautRouter` element and `fire()`; `UpuautView` and `UpuautLink` via page templates |
-| out       | khnum      | `Shape`, `mold` in every page                                                         |
-| in        | none       | SPA entry point; Vite root                                                            |
+| Direction | Area       | Through                                                                              |
+| --------- | ---------- | ------------------------------------------------------------------------------------ |
+| out       | router     | `createRouter`, `START_LOCATION`, Router methods                                     |
+| out       | history    | `createWebHistory`, `createHashHistory`, `createMemoryHistory`                       |
+| out       | components | `UpuautRouter` (`fire`, `router`, `onRouter`), `upuaut-link`/`upuaut-view` in markup |
+| out       | khnum      | `Shape`, `mold`                                                                      |
+| in        | e2e, tests | e2e/demo.spec.ts, e2e/panel.spec.ts, tests/demo.test.ts                              |

@@ -240,4 +240,22 @@ Descendants find their router by walking up the tree, also across shadow roots.
 | `/about`                | lazy component                                             |
 | `/admin`                | `beforeEach` guard redirecting to `/login?redirect=/admin` |
 | `/old-home`             | `redirect: "/"`                                            |
+| `/old-user/:id`         | function redirect to the named route `user`                |
+| `/search?q=`            | query                                                      |
+| `/posts/:slug?`         | optional param                                             |
+| `/files/:rest*`         | splat param                                                |
+| `/docs#section`         | hash                                                       |
 | `*`                     | 404 page                                                   |
+
+The `<demo-panel>` on the right changes the router live:
+
+| Control                                                | Shows                                                             |
+| ------------------------------------------------------ | ----------------------------------------------------------------- |
+| History: web / hash / memory                           | swapping the `Router` on `<upuaut-router>` at runtime             |
+| Require login                                          | `beforeEach` redirect                                             |
+| Block every navigation                                 | `aborted` failure; Back is undone silently                        |
+| Slow guard (ms)                                        | `cancelled` failure when a second click wins                      |
+| Lazy delay (ms)                                        | lazy component resolved before commit                             |
+| Navigate: path, name + params + query, back/forward/go | `push`, `replace`, `resolve` preview, named routes, `UpuautError` |
+| Current route                                          | `RouteLocation` from the `upuaut-navigated` event                 |
+| Navigation log                                         | `afterEach` with failures                                         |
