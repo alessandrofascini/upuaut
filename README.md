@@ -65,14 +65,15 @@ The element rendered by `<upuaut-view>` receives the current `route` (`RouteLoca
 
 ## Development
 
-| Command              | Does                                      |
-| -------------------- | ----------------------------------------- |
-| `npm run dev`        | demo SPA in `demo/` with hot reload       |
-| `npm run test`       | unit tests (Vitest + happy-dom)           |
-| `npm run typecheck`  | `tsc --noEmit`                            |
-| `npm run build`      | library build to `dist/`                  |
-| `npm run build:demo` | demo build to `dist-demo/`                |
-| `npm run check`      | format, type-check, tests and both builds |
+| Command                | Does                                                                                             |
+| ---------------------- | ------------------------------------------------------------------------------------------------ |
+| `npm run dev`          | demo SPA in `demo/` with hot reload                                                              |
+| `npm run test`         | unit tests (Vitest + happy-dom)                                                                  |
+| `npm run test:browser` | component, history and demo tests in headless Chromium (needs `npx playwright install chromium`) |
+| `npm run typecheck`    | `tsc --noEmit`                                                                                   |
+| `npm run build`        | library build to `dist/`                                                                         |
+| `npm run build:demo`   | demo build to `dist-demo/`                                                                       |
+| `npm run check`        | format, type-check, tests and both builds                                                        |
 
 ## License
 

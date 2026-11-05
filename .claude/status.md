@@ -70,3 +70,4 @@ gitGraph
 
 - "implement them" includes limit 3, so it counts as permission to download Playwright Chromium.
 - Limit 2: class check plus `customElements.getName` (no `lazy:` field).
+  | 2026-11-05 | `test:browser` kept out of `npm run check` | brief: browser tests on request; check stays offline-fast | AFK |

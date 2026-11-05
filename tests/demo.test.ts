@@ -1,4 +1,5 @@
-import {readFileSync} from "node:fs";
+/// <reference types="vite/client" />
+import html from "../demo/index.html?raw";
 import {beforeAll, describe, expect, it, vi} from "vitest";
 import type {Router, UpuautRouter} from "upuaut";
 
@@ -10,7 +11,6 @@ const go = async (path: string, expected = path) => {
 };
 
 beforeAll(async () => {
-  const html = readFileSync("demo/index.html", "utf8");
   const body = /<body>([\s\S]*)<\/body>/.exec(html)?.[1] ?? "";
   document.body.innerHTML = body.replace(/<script[\s\S]*?<\/script>/g, "");
   window.history.replaceState(null, "", "/");
