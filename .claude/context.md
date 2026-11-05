@@ -14,15 +14,16 @@
 
 ## Vetting commands (from package.json)
 
-| Check             | Command                                                          |
-| ----------------- | ---------------------------------------------------------------- |
-| Format            | `npm run format:check`                                           |
-| Type-check        | `npm run typecheck`                                              |
-| Unit tests        | `npm run test` (one file: `npx vitest run tests/<file>.test.ts`) |
-| Build lib         | `npm run build`                                                  |
-| Build demo        | `npm run build:demo`                                             |
-| Full gate         | `npm run check`                                                  |
-| Integration / e2e | none (browser e2e only on user request)                          |
+| Check         | Command                                                                                                     |
+| ------------- | ----------------------------------------------------------------------------------------------------------- |
+| Format        | `npm run format:check`                                                                                      |
+| Type-check    | `npm run typecheck`                                                                                         |
+| Unit tests    | `npm run test` (one file: `npx vitest run tests/<file>.test.ts`)                                            |
+| Build lib     | `npm run build`                                                                                             |
+| Build demo    | `npm run build:demo`                                                                                        |
+| Full gate     | `npm run check`                                                                                             |
+| Browser tests | `npm run test:browser` (Vitest browser mode, headless Chromium; components, history, demo; not in `check`)  |
+| E2E           | `npm run test:e2e` (Playwright 1.64.1, e2e/*.spec.ts; builds demo, `vite preview` on :4173; not in `check`) |
 
 ## Host tool versions
 
@@ -35,6 +36,7 @@
 | vitest                     | 5.1.0                                           |
 | prettier                   | 3.9.10                                          |
 | typescript-language-server | 6.0.3                                           |
+| playwright                 | 1.64.1 (chromium-headless-shell 156.0.8078.4)   |
 | tree-sitter                | 0.27.1 (grammar tree-sitter-typescript f975a62) |
 
 ## Environment notes

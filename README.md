@@ -70,6 +70,7 @@ The element rendered by `<upuaut-view>` receives the current `route` (`RouteLoca
 | `npm run dev`          | demo SPA in `demo/` with hot reload                                                              |
 | `npm run test`         | unit tests (Vitest + happy-dom)                                                                  |
 | `npm run test:browser` | component, history and demo tests in headless Chromium (needs `npx playwright install chromium`) |
+| `npm run test:e2e`     | Playwright end-to-end tests against the built demo (`vite preview`)                              |
 | `npm run typecheck`    | `tsc --noEmit`                                                                                   |
 | `npm run build`        | library build to `dist/`                                                                         |
 | `npm run build:demo`   | demo build to `dist-demo/`                                                                       |

@@ -16,5 +16,5 @@
     "isolatedModules": true,
     "paths": {"upuaut": ["./src/index.ts"]}
   },
-  "include": ["src", "tests", "demo"]
+  "include": ["src", "tests", "demo", "e2e", "playwright.config.ts"]
 }

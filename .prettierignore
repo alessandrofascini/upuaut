@@ -6,3 +6,5 @@ package-lock.json
 .claude/sweeps
 .claude/outputs
 .vitest
+test-results
+playwright-report

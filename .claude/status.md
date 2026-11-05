@@ -21,6 +21,7 @@ gitGraph
   commit id: "demo"
   commit id: "finish"
   commit id: "limits"
+  commit id: "e2e"
 ```
 
 | Worktree path                       | Branch         | Task   | Stage  | Last commit                     | Next step                                           | Tier |
@@ -68,6 +69,7 @@ gitGraph
 | 2026-11-05 | Silent pop via `go(delta, false)` + position in `history.state.upuautPosition`                     | Vue Router approach                                                                    | AFK                        |
 | 2026-11-05 | `test:browser` kept out of `npm run check`                                                         | browser tests on request; check stays fast and offline                                 | AFK                        |
 | 2026-11-05 | Review of limits diff: no blocking findings (see .claude/outputs/review.md rows 6-8)               | review                                                                                 | top tier                   |
+| 2026-11-05 | Playwright e2e in e2e/ against built demo via `vite preview`; `test:e2e` outside `check`           | user request; needs a server and a browser                                             | user / AFK                 |
 
 ## Assumptions
 
