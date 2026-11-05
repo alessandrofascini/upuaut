@@ -1,0 +1,68 @@
+{
+  "name": "upuaut",
+  "version": "0.1.0",
+  "description": "A web-component router built on khnum.",
+  "keywords": [
+    "web-components",
+    "custom-elements",
+    "router",
+    "spa"
+  ],
+  "type": "module",
+  "main": "./dist/upuaut.umd.cjs",
+  "module": "./dist/upuaut.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/upuaut.js",
+      "require": "./dist/upuaut.umd.cjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "dev": "vite demo",
+    "build": "vite build",
+    "build:demo": "vite build demo",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --project unit",
+    "test:watch": "vitest --project unit",
+    "coverage": "vitest run --project unit --coverage",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "check": "npm run format:check && npm run typecheck && npm run test && npm run build && npm run build:demo",
+    "test:browser": "vitest run --project browser",
+    "test:e2e": "playwright test",
+    "docs": "npm ci --prefix tools/typedoc --silent && tools/typedoc/node_modules/.bin/typedoc",
+    "prepublishOnly": "npm run check"
+  },
+  "license": "MIT",
+  "author": "Alessandro Fascini",
+  "peerDependencies": {
+    "khnum": "^1.0.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.64.1",
+    "@typescript/typescript6": "^6.0.2",
+    "@vitest/browser-playwright": "^5.1.0",
+    "@vitest/coverage-v8": "^5.1.0",
+    "happy-dom": "^21.0.4",
+    "khnum": "^1.0.0",
+    "playwright": "^1.64.1",
+    "prettier": "^3.9.10",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.6",
+    "vite-plugin-dts": "^5.1.2",
+    "vitest": "^5.1.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alessandrofascini/upuaut.git"
+  },
+  "homepage": "https://github.com/alessandrofascini/upuaut#readme",
+  "bugs": {
+    "url": "https://github.com/alessandrofascini/upuaut/issues"
+  }
+}
