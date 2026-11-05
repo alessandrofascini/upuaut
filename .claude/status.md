@@ -4,7 +4,7 @@
 
 | Task                                              | Stage     | Mode     | Ultracode | Updated    |
 | ------------------------------------------------- | --------- | -------- | --------- | ---------- |
-| Upuaut router library + demo SPA (docs/router.md) | build 4/9 | ATTENDED | yes       | 2026-11-05 |
+| Upuaut router library + demo SPA (docs/router.md) | build 5/9 | ATTENDED | yes       | 2026-11-05 |
 
 ## Worktrees
 
@@ -16,9 +16,9 @@ gitGraph
   commit id: "orient: scaffold + spec"
 ```
 
-| Worktree path                       | Branch         | Task   | Stage | Last commit                     | Next step          | Tier |
-| ----------------------------------- | -------------- | ------ | ----- | ------------------------------- | ------------------ | ---- |
-| /home/fascio/projects/github/upuaut | feature/router | router | build | see `git log -1 feature/router` | task 5 router core | top  |
+| Worktree path                       | Branch         | Task   | Stage | Last commit                     | Next step         | Tier |
+| ----------------------------------- | -------------- | ------ | ----- | ------------------------------- | ----------------- | ---- |
+| /home/fascio/projects/github/upuaut | feature/router | router | build | see `git log -1 feature/router` | task 6 components | top  |
 
 ## Tasks
 
@@ -28,7 +28,7 @@ gitGraph
 | 2      | Query parse/stringify                                                             | src/query.ts `parseQuery`, `stringifyQuery`                                   | tests/query.test.ts                  | cheap     | done  |
 | 3      | Path compile, match, rank (spec §3)                                               | src/path.ts `compilePath`, `rankPath`                                         | tests/path.test.ts                   | top       | done  |
 | 4      | History backends (spec §7)                                                        | src/history.ts `createMemoryHistory`, `createWebHistory`, `createHashHistory` | tests/history.test.ts                | top       | done  |
-| 5      | Router core: resolve, push/replace, guards, redirects, lazy, failures (spec §4-6) | src/router.ts `createRouter`                                                  | tests/router.test.ts                 | top       | todo  |
+| 5      | Router core: resolve, push/replace, guards, redirects, lazy, failures (spec §4-6) | src/router.ts `createRouter`                                                  | tests/router.test.ts                 | top       | done  |
 | 6      | `<upuaut-router>`, `<upuaut-view>`, `<upuaut-link>` (spec §8)                     | src/components/*.ts                                                           | tests/components/*.test.ts           | top       | todo  |
 | 7      | Public exports                                                                    | src/index.ts                                                                  | `npm run typecheck`, `npm run build` | cheap     | todo  |
 | 8      | Demo SPA (spec §11)                                                               | demo/                                                                         | `npm run build:demo`                 | cheap     | todo  |
@@ -50,3 +50,6 @@ gitGraph
 | 2026-11-05 | khnum confirmed                                                              | user reply                                                             | user                       |
 | 2026-11-05 | Tasks 1-2 done by top tier directly                                          | smaller than a brief                                                   | AFK-style default          |
 | 2026-11-05 | Nested `*` joins to parent (`/users/*`)                                      | nested catch-all stays scoped                                          | top tier                   |
+| 2026-11-05 | Route ties: deeper chain wins (`/users` + child `""` → child)                | Vue-like nested index routes                                           | top tier                   |
+| 2026-11-05 | Aborted pop restores URL with `history.replace(from)` (no delta tracking)    | v1 simplicity; back entry may be rewritten                             | top tier                   |
+| 2026-11-05 | Lazy component result cached by writing `record.component`                   | simplest cache; view reads record directly                             | top tier                   |
