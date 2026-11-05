@@ -1,0 +1,53 @@
+{
+  "name": "upuaut",
+  "version": "0.0.0",
+  "description": "A web-component router built on khnum.",
+  "keywords": [
+    "web-components",
+    "custom-elements",
+    "router",
+    "spa"
+  ],
+  "type": "module",
+  "main": "./dist/upuaut.umd.cjs",
+  "module": "./dist/upuaut.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/upuaut.js",
+      "require": "./dist/upuaut.umd.cjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "dev": "vite demo",
+    "build": "vite build",
+    "build:demo": "vite build demo",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "coverage": "vitest run --coverage",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "check": "npm run format:check && npm run typecheck && npm run test && npm run build && npm run build:demo"
+  },
+  "license": "MIT",
+  "author": "Alessandro Fascini",
+  "peerDependencies": {
+    "khnum": "^1.0.0"
+  },
+  "devDependencies": {
+    "@typescript/typescript6": "^6.0.2",
+    "@vitest/coverage-v8": "^5.1.0",
+    "happy-dom": "^21.0.4",
+    "khnum": "^1.0.0",
+    "prettier": "^3.9.10",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.6",
+    "vite-plugin-dts": "^5.1.2",
+    "vitest": "^5.1.0"
+  }
+}
