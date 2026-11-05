@@ -1,10 +1,9 @@
 import {Shape} from "khnum";
 import type {Router} from "../router";
-import {connectRouter} from "./host";
+import type {RouteLocationRaw} from "../types";
+import {adoptUpgradedProperty, connectRouter} from "./host";
 
 type LinkProps = {
-  /** Attribute `to`: the target location, e.g. `/users/42?tab=info`. */
-  to: string | null;
   /** Attribute `replace`: when present, navigate with `replace` instead of `push`. */
   replace: string | null;
   /** Attribute `target`: copied to the anchor; any value other than `_self` keeps the browser behavior. */
@@ -13,6 +12,8 @@ type LinkProps = {
   activeClass: string | null;
   /** Attribute `exact-active-class`: class for exact matches; default {@link DEFAULT_EXACT_ACTIVE_CLASS}. */
   exactActiveClass: string | null;
+  /** Attribute `exact`: when present, the active class too requires an exact match. */
+  exact: string | null;
 };
 
 /** Default class of a link whose target is the current path or one of its parents. */
@@ -31,19 +32,54 @@ const normalize = (path: string): string =>
  * crawlers keep working; only a plain left click is taken over.
  *
  * Active state, as in Vue's RouterLink and React's NavLink:
- * - active: the current path is the target or below it (/users for /users/1)
+ * - active: the current path is the target or below it (/users for /users/1);
+ *   with the `exact` attribute, only the target itself (React's `end`)
  * - exact active: the current path is the target; also sets aria-current
+ *
+ * The target comes from the `to` attribute (a string) or the `to` property
+ * (any RouteLocationRaw, e.g. a named route). `to` is not a khnum attribute
+ * property because those are strings only; it is observed by hand below.
  */
 export class UpuautLink extends Shape<LinkProps>("upuaut-link", [
-  "to",
   "replace",
   "target",
   "active-class",
   "exact-active-class",
+  "exact",
 ]) {
+  /** @internal Adds `to`, which is handled by hand. */
+  static override get observedAttributes(): string[] {
+    return [...super.observedAttributes, "to"];
+  }
+
+  #to: RouteLocationRaw | null = null;
   #anchor: HTMLAnchorElement | undefined;
   #router: Router | undefined;
   #classes: string[] = [];
+
+  /**
+   * The target. Set by the `to` attribute (a string) or directly with any
+   * location, e.g. `link.to = {name: "user", params: {id: "42"}}`.
+   */
+  get to(): RouteLocationRaw | null {
+    return this.#to;
+  }
+
+  /** Sets the target and updates the `href` and active classes. */
+  set to(to: RouteLocationRaw | null) {
+    this.#to = to;
+    if (this.isConnected) this.#update();
+  }
+
+  /** @internal */
+  override attributeChangedCallback(
+    name: string,
+    oldValue: string | null,
+    newValue: string | null,
+  ): void {
+    if (name === "to") this.to = newValue;
+    else super.attributeChangedCallback(name, oldValue, newValue);
+  }
 
   /** The rendered `<a>`, available once the link is connected. */
   get anchor(): HTMLAnchorElement | undefined {
@@ -52,6 +88,7 @@ export class UpuautLink extends Shape<LinkProps>("upuaut-link", [
 
   /** @internal khnum lifecycle hook. */
   override render(): void {
+    adoptUpgradedProperty(this, "to");
     if (!this.#anchor || this.#anchor.parentNode !== this) {
       const anchor = document.createElement("a");
       // Move (not copy) the author's children into the anchor, once. On
@@ -78,10 +115,6 @@ export class UpuautLink extends Shape<LinkProps>("upuaut-link", [
   }
 
   /** @internal */
-  renderTo(): void {
-    this.#update();
-  }
-  /** @internal */
   renderTarget(): void {
     this.#update();
   }
@@ -91,6 +124,10 @@ export class UpuautLink extends Shape<LinkProps>("upuaut-link", [
   }
   /** @internal */
   renderExactActiveClass(): void {
+    this.#update();
+  }
+  /** @internal */
+  renderExact(): void {
     this.#update();
   }
 
@@ -108,13 +145,22 @@ export class UpuautLink extends Shape<LinkProps>("upuaut-link", [
       anchor.removeAttribute("href");
       return;
     }
-    const target = router.resolve(this.to);
+    let target: ReturnType<Router["resolve"]>;
+    try {
+      target = router.resolve(this.to);
+    } catch (error) {
+      // An unknown name or a missing param: render a dead link, not a crash.
+      anchor.removeAttribute("href");
+      console.error(error);
+      return;
+    }
     anchor.href = target.href;
 
     const current = normalize(router.currentRoute.path);
     const wanted = normalize(target.path);
     const exact = current === wanted;
-    const active = exact || (wanted !== "/" && current.startsWith(`${wanted}/`));
+    const below = wanted !== "/" && current.startsWith(`${wanted}/`);
+    const active = exact || (this.exact === null && below);
     if (active) this.#classes.push(this.activeClass ?? DEFAULT_ACTIVE_CLASS);
     if (exact) {
       this.#classes.push(this.exactActiveClass ?? DEFAULT_EXACT_ACTIVE_CLASS);
@@ -138,6 +184,7 @@ export class UpuautLink extends Shape<LinkProps>("upuaut-link", [
     if (this.hasAttribute("download")) return;
     event.preventDefault();
     const navigate = this.replace !== null ? router.replace(this.to) : router.push(this.to);
-    navigate.catch((err: unknown) => console.error(err));
+    // Errors are already reported through router.onError (or the console).
+    navigate.catch(() => undefined);
   }
 }

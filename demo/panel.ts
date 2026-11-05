@@ -1,6 +1,7 @@
 import {mold, Shape} from "khnum";
 import type {RouteLocation, Router, UpuautRouter} from "upuaut";
 import {addLog, clearLog, onLog} from "./log";
+import {DEFAULT_PALETTE, PALETTES} from "./palette";
 import {
   AUTH_KEY,
   isLoggedIn,
@@ -46,6 +47,7 @@ export class DemoPanel extends Shape("demo-panel") {
           hash: route.hash,
           meta: route.meta,
           matched: route.matched.map((r) => r.name ?? r.path),
+          redirectedFrom: route.redirectedFrom?.fullPath ?? null,
         },
         null,
         2,
@@ -54,6 +56,7 @@ export class DemoPanel extends Shape("demo-panel") {
 
     this.replaceChildren(
       this.#historyCard(),
+      this.#paletteCard(),
       this.#guardsCard(),
       this.#navigateCard(),
       card("Current route", inspector),
@@ -77,7 +80,8 @@ export class DemoPanel extends Shape("demo-panel") {
     const router = this.#router;
     if (!router) return;
     try {
-      Promise.resolve(action(router)).catch((err: unknown) => addLog("error", String(err)));
+      // Navigation errors reach the log through router.onError (demo/router.ts).
+      Promise.resolve(action(router)).catch(() => undefined);
     } catch (err) {
       addLog("error", String(err));
     }
@@ -101,6 +105,40 @@ export class DemoPanel extends Shape("demo-panel") {
       "History",
       mold("div", {class: "segmented"}, ...buttons),
       mold("p", {class: "hint"}, "Memory history keeps the URL bar still."),
+    );
+  }
+
+  #paletteCard(): HTMLElement {
+    const options = [
+      {id: DEFAULT_PALETTE, name: "Default", colors: ["#f6f4ef", "#b5651d", "#1d1b16"]},
+      ...PALETTES,
+    ];
+    const buttons = options.map((palette) => {
+      const swatches = mold(
+        "span",
+        {class: "swatches", "aria-hidden": "true"},
+        ...palette.colors.map((color) => mold("span", {style: {background: color}})),
+      );
+      const button = mold(
+        "button",
+        {type: "button", "data-palette": palette.id, title: palette.colors.join(" ")},
+        swatches,
+        palette.name,
+      );
+      this.addEventListener("click", () => updateSettings({palette: palette.id}), {}, button);
+      return button;
+    });
+    const sync = (): void => {
+      for (const button of buttons) {
+        button.setAttribute("aria-pressed", String(button.dataset.palette === settings.palette));
+      }
+    };
+    sync();
+    this.beforeDisconnect(onSettings(sync));
+    return card(
+      "Palette",
+      mold("div", {class: "palettes"}, ...buttons),
+      mold("p", {class: "hint"}, "Ancient Egypt palettes from media.io; follows light/dark."),
     );
   }
 

@@ -8,6 +8,7 @@
   --border: #e2ddd2;
   --accent: #b5651d;
   --accent-soft: #f5e6d6;
+  --on-accent: #fff;
   --ok: #2f7d4f;
   --failure: #b0412e;
   --info: #3a64a8;
@@ -302,7 +303,39 @@ input[type="range"] {
 
 .segmented button[aria-pressed="true"] {
   background: var(--accent);
-  color: #fff;
+  color: var(--on-accent);
+}
+
+/* Palette picker: one button per palette, its five colors as a strip. */
+.palettes {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(7.5rem, 1fr));
+  gap: 0.4rem;
+}
+
+.palettes button {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 0.35rem;
+  font-size: 0.75rem;
+  text-align: left;
+}
+
+.palettes button[aria-pressed="true"] {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent);
+}
+
+.swatches {
+  display: flex;
+  height: 0.9rem;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.swatches span {
+  flex: 1;
 }
 
 .inspector {

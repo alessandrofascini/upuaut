@@ -39,7 +39,8 @@ export class UpuautRouter
     if (!router) return;
     if (this.isConnected) this.#listen(router);
     for (const cb of [...this.#waiters]) cb(router);
-    router.start().catch((err: unknown) => console.error(err));
+    // Errors are already reported through router.onError (or the console).
+    router.start().catch(() => undefined);
   }
 
   /**

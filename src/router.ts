@@ -60,6 +60,9 @@ export type AfterEachHook = (
 /** Called after every completed navigation, before {@link AfterEachHook}s. */
 export type RouteListener = (to: RouteLocation, from: RouteLocation) => void;
 
+/** Receives errors thrown during a navigation; see {@link Router.onError}. */
+export type ErrorHandler = (error: unknown) => void;
+
 /** Resolves with `undefined` on success, or with a {@link NavigationFailure}. */
 export type NavigationResult = Promise<NavigationFailure | void>;
 
@@ -90,6 +93,12 @@ export interface Router {
   afterEach(hook: AfterEachHook): () => void;
   /** Listens to completed navigations. Returns a function that stops listening. */
   subscribe(listener: RouteListener): () => void;
+  /**
+   * Adds a handler for errors thrown during any navigation (guards, lazy
+   * loaders, unknown names). Without handlers they go to `console.error`.
+   * `push`/`replace` still reject. Returns a function that removes it.
+   */
+  onError(handler: ErrorHandler): () => void;
   /** Resolves after the initial navigation started by {@link Router.start}. */
   isReady(): Promise<void>;
   /** Listens to the history and navigates to its current location. `<upuaut-router>` calls it for you. */
@@ -137,6 +146,12 @@ export function isLazyComponent(
  * Splits "/path?query#hash" into its parts. The hash is cut first because a
  * "?" after the "#" belongs to the hash, not to the query.
  */
+/** Copies a query so later changes to the caller's object cannot alter a location. */
+const copyQuery = (query: Query): Query =>
+  Object.fromEntries(
+    Object.entries(query).map(([key, value]) => [key, Array.isArray(value) ? [...value] : value]),
+  );
+
 function splitRaw(raw: string): {path: string; query: Query; hash: string} {
   const hashAt = raw.indexOf("#");
   const hash = hashAt < 0 ? "" : raw.slice(hashAt);
@@ -199,6 +214,7 @@ export function createRouter(options: RouterOptions): Router {
   );
 
   const beforeGuards = new Set<NavigationGuard>();
+  const errorHandlers = new Set<ErrorHandler>();
   const afterHooks = new Set<AfterEachHook>();
   const listeners = new Set<RouteListener>();
   let current: RouteLocation = START_LOCATION;
@@ -231,12 +247,12 @@ export function createRouter(options: RouterOptions): Router {
       const named = byName.get(to.name);
       if (!named) throw new UpuautError("resolve", `unknown route name "${to.name}"`);
       path = named.compiled.build(to.params ?? {});
-      query = to.query ?? {};
+      query = copyQuery(to.query ?? {});
       hash = to.hash ?? "";
     } else {
       const parsed = splitRaw(to.path);
       path = parsed.path;
-      query = {...parsed.query, ...to.query};
+      query = {...parsed.query, ...copyQuery(to.query ?? {})};
       hash = to.hash ?? parsed.hash;
     }
     if (hash !== "" && !hash.startsWith("#")) hash = `#${hash}`;
@@ -313,6 +329,7 @@ export function createRouter(options: RouterOptions): Router {
     mode: "push" | "replace" | "pop" | "initial",
     redirects = 0,
     popDelta = 0,
+    redirectedFrom?: RouteLocation,
   ): NavigationResult => {
     if (redirects > MAX_REDIRECTS) {
       throw new UpuautError("navigate", `more than ${MAX_REDIRECTS} redirects`);
@@ -334,7 +351,7 @@ export function createRouter(options: RouterOptions): Router {
     const leaf = to.matched[to.matched.length - 1];
     if (leaf?.redirect !== undefined) {
       const target = typeof leaf.redirect === "function" ? leaf.redirect(to) : leaf.redirect;
-      return navigate(target, redirectMode, redirects + 1);
+      return navigate(target, redirectMode, redirects + 1, 0, redirectedFrom ?? to);
     }
 
     // beforeEnter runs only for records we are entering. Moving from
@@ -358,7 +375,7 @@ export function createRouter(options: RouterOptions): Router {
       // A guard redirect replaces the entry: the rejected location must not
       // stay in the history, or Back would hit the same guard again.
       if (result !== undefined && result !== true) {
-        return navigate(result, "replace", redirects + 1);
+        return navigate(result, "replace", redirects + 1, 0, redirectedFrom ?? to);
       }
     }
 
@@ -370,10 +387,22 @@ export function createRouter(options: RouterOptions): Router {
     // subscriber, and afterEach hooks expect the new page to be in the DOM.
     if (mode === "push") history.push(to.fullPath);
     else if (mode !== "pop") history.replace(to.fullPath);
-    current = to;
-    for (const listener of [...listeners]) listener(to, from);
-    for (const hook of [...afterHooks]) hook(to, from);
+    current = redirectedFrom ? {...to, redirectedFrom} : to;
+    for (const listener of [...listeners]) listener(current, from);
+    for (const hook of [...afterHooks]) hook(current, from);
   };
+
+  /**
+   * Entry point for every navigation started from outside navigate(): errors
+   * go to the onError handlers (or the console) exactly once, here, and the
+   * promise still rejects for callers that await it. Like Vue Router.
+   */
+  const run = (navigation: NavigationResult): NavigationResult =>
+    navigation.catch((error: unknown) => {
+      if (errorHandlers.size === 0) console.error(error);
+      for (const handler of [...errorHandlers]) handler(error);
+      throw error;
+    });
 
   const unregister =
     <T>(set: Set<T>, item: T): (() => void) =>
@@ -386,8 +415,8 @@ export function createRouter(options: RouterOptions): Router {
       return current;
     },
     history,
-    push: (to) => navigate(to, "push"),
-    replace: (to) => navigate(to, "replace"),
+    push: (to) => run(navigate(to, "push")),
+    replace: (to) => run(navigate(to, "replace")),
     back: () => history.go(-1),
     forward: () => history.go(1),
     go: (delta) => history.go(delta),
@@ -399,6 +428,10 @@ export function createRouter(options: RouterOptions): Router {
     afterEach(hook) {
       afterHooks.add(hook);
       return unregister(afterHooks, hook);
+    },
+    onError(handler) {
+      errorHandlers.add(handler);
+      return unregister(errorHandlers, handler);
     },
     subscribe(listener) {
       listeners.add(listener);
@@ -413,9 +446,10 @@ export function createRouter(options: RouterOptions): Router {
     start() {
       if (started) return started;
       unlisten = history.listen((to, _from, {delta}) => {
-        navigate(to, "pop", 0, delta).catch((err: unknown) => console.error(err));
+        // Already reported by run(); nobody awaits a pop.
+        run(navigate(to, "pop", 0, delta)).catch(() => undefined);
       });
-      started = navigate(history.location, "initial").then(
+      started = run(navigate(history.location, "initial")).then(
         () => markReady(),
         (err: unknown) => {
           markFailed(err);

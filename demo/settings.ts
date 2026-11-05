@@ -6,6 +6,7 @@ export interface DemoSettings {
   blockNavigation: boolean;
   guardDelay: number;
   lazyDelay: number;
+  palette: string;
 }
 
 type SettingsListener = (settings: DemoSettings, changed: (keyof DemoSettings)[]) => void;
@@ -17,6 +18,7 @@ const DEFAULTS: DemoSettings = {
   blockNavigation: false,
   guardDelay: 0,
   lazyDelay: 0,
+  palette: "default",
 };
 
 function load(): DemoSettings {

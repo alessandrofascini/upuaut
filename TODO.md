@@ -20,10 +20,10 @@ Remaining work for Upuaut after `feature/router`. Details and proposed designs f
 
 ## Library: v1 gaps
 
-- [ ] Copy the caller's `query` object in `resolve()` instead of keeping a reference (review finding 4)
-- [ ] Error hook: `router.onError(cb)` for errors thrown by guards and lazy loaders during pop navigations (now only `console.error`)
-- [ ] `RouteLocation.redirectedFrom`, so pages can tell that a redirect happened
-- [ ] `<upuaut-link>`: accept an object `to` through a property (named routes in markup); `exact` option for the active class
+- [x] Copy the caller's `query` object in `resolve()` instead of keeping a reference (review finding 4)
+- [x] Error hook: `router.onError(cb)` for errors thrown by guards and lazy loaders during pop navigations (now only `console.error`)
+- [x] `RouteLocation.redirectedFrom`, so pages can tell that a redirect happened
+- [x] `<upuaut-link>`: accept an object `to` through a property (named routes in markup); `exact` option for the active class
 - [x] Tests for the uncovered paths (coverage now 99.8 % statements, 99.7 % branches, 100 % functions and lines)
 
 ## Library: out of v1 scope (docs/router.md section 10)

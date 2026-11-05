@@ -120,6 +120,28 @@ Per-route guards go in `beforeEnter`; they run only when the route is entered, n
 
 Guards may be async. If the user starts another navigation while a guard is waiting, the older navigation ends with a `cancelled` failure.
 
+## Handle errors
+
+Errors thrown by guards, lazy loaders or unknown route names go to `onError` handlers — also for Back/Forward and link clicks, which have no caller to catch them. Without handlers they are logged with `console.error`. `push`/`replace` still reject.
+
+```ts
+router.onError((error) => {
+  // e.g. a lazy chunk missing after a deploy
+  if (error instanceof TypeError && /dynamically imported module/.test(error.message))
+    location.reload();
+});
+```
+
+## Know where the user wanted to go
+
+After a redirect (record or guard), `route.redirectedFrom` is the location first requested:
+
+```ts
+router.beforeEach((to) => (to.meta.requiresAuth && !isLoggedIn() ? "/login" : undefined));
+// on /login, after the redirect:
+const target = router.currentRoute.redirectedFrom?.fullPath ?? "/";
+```
+
 ## Load pages lazily
 
 ```ts
@@ -150,7 +172,15 @@ upuaut-link a.upuaut-link-exact-active {
 }
 ```
 
-Add `replace` to use `replace` instead of `push`. Ctrl/Cmd-click, middle-click, `target="_blank"` and `download` keep the browser behavior.
+Add `replace` to use `replace` instead of `push`, and `exact` to give the active class only on an exact match (a "Users" link that should not stay active on `/users/42`). Ctrl/Cmd-click, middle-click, `target="_blank"` and `download` keep the browser behavior.
+
+Attributes are strings. For a named route, set the `to` property:
+
+```ts
+const link = document.createElement("upuaut-link") as UpuautLink;
+link.to = {name: "user", params: {id: "42"}};
+link.textContent = "Ada";
+```
 
 ## Choose a history
 

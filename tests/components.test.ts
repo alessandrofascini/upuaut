@@ -311,3 +311,62 @@ describe("component edge cases", () => {
     await expect(router.push("/")).rejects.toThrow("component is not registered");
   });
 });
+
+describe("link: object to and exact", () => {
+  it("accepts a named location through the to property", async () => {
+    const {router} = await mount("/", `<upuaut-link id="x">User</upuaut-link>`);
+    const link = document.querySelector("#x") as UpuautLink;
+    expect(link.anchor?.hasAttribute("href")).toBe(false);
+    link.to = {path: "/users/5", query: {tab: "info"}};
+    expect(link.anchor?.getAttribute("href")).toBe("/users/5?tab=info");
+    link.anchor?.dispatchEvent(new MouseEvent("click", {bubbles: true, cancelable: true}));
+    await vi.waitFor(() => expect(router.currentRoute.fullPath).toBe("/users/5?tab=info"));
+    expect(link.anchor?.getAttribute("aria-current")).toBe("page");
+  });
+
+  it("keeps the to attribute working and lets it override the property", async () => {
+    await mount("/", `<upuaut-link id="x" to="/users">Users</upuaut-link>`);
+    const link = document.querySelector("#x") as UpuautLink;
+    expect(link.to).toBe("/users");
+    link.to = {path: "/users/2"};
+    expect(link.anchor?.getAttribute("href")).toBe("/users/2");
+    link.setAttribute("to", "/");
+    expect(link.anchor?.getAttribute("href")).toBe("/");
+  });
+
+  it("adopts a to property set before the element was upgraded", async () => {
+    const {router, host} = await mount("/");
+    const link = new UpuautLink();
+    Object.defineProperty(link, "to", {value: "/users/3", configurable: true, writable: true});
+    host.append(link);
+    expect(link.to).toBe("/users/3");
+    expect(link.anchor?.getAttribute("href")).toBe(router.resolve("/users/3").href);
+    // The accessor must be back in charge: a later assignment updates the href.
+    link.to = "/users/4";
+    expect(link.anchor?.getAttribute("href")).toBe("/users/4");
+  });
+
+  it("renders a dead link for an unknown route name", async () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => undefined);
+    await mount("/", `<upuaut-link id="x">Nope</upuaut-link>`);
+    const link = document.querySelector("#x") as UpuautLink;
+    link.to = {name: "nope"};
+    expect(link.anchor?.hasAttribute("href")).toBe(false);
+    expect(error).toHaveBeenCalled();
+    error.mockRestore();
+  });
+
+  it("exact limits the active class to an exact match", async () => {
+    const {router} = await mount(
+      "/users/1",
+      `<upuaut-link id="x" to="/users" exact>Users</upuaut-link>`,
+    );
+    const link = document.querySelector("#x") as UpuautLink;
+    expect(link.anchor?.className).toBe("");
+    await router.push("/users");
+    expect(link.anchor?.className).toBe("upuaut-link-active upuaut-link-exact-active");
+    link.removeAttribute("exact");
+    await router.push("/users/2");
+    expect(link.anchor?.className).toBe("upuaut-link-active");
+  });
+});

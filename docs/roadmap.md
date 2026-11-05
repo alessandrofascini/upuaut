@@ -6,29 +6,29 @@ title: Roadmap
 
 This page explains what each remaining item in [TODO.md](../TODO.md) means, why it matters, how Vue Router and React Router handle it, and a proposed design for Upuaut. Effort: S (hours), M (a day or two), L (several days).
 
-| Item                                                        | Kind         | Effort | Breaking? |
-| ----------------------------------------------------------- | ------------ | ------ | --------- |
-| [Copy the query object](#1-copy-the-query-object)           | gap          | S      | no        |
-| [Error hook](#2-error-hook-routeronerror)                   | gap          | S      | no        |
-| [`redirectedFrom`](#3-redirectedfrom)                       | gap          | S      | no        |
-| [Link: object `to`, `exact`](#4-link-object-to-and-exact)   | gap          | S      | no        |
-| [Scroll behavior](#5-scroll-behavior)                       | out of scope | M      | no        |
-| [Named views](#6-named-views)                               | out of scope | M      | no        |
-| [Dynamic routes](#7-dynamic-routes-addroute--removeroute)   | out of scope | M      | no        |
-| [Declarative `<upuaut-route>`](#8-declarative-upuaut-route) | out of scope | M      | no        |
-| [Transitions](#9-transitions)                               | out of scope | M      | no        |
-| [Data loaders and actions](#10-data-loaders-and-actions)    | out of scope | L      | no        |
-| [SSR](#11-ssr)                                              | out of scope | L      | maybe     |
+| Item                                                        | Kind         | Effort | Status                                |
+| ----------------------------------------------------------- | ------------ | ------ | ------------------------------------- |
+| [Copy the query object](#1-copy-the-query-object)           | gap          | S      | done                                  |
+| [Error hook](#2-error-hook-routeronerror)                   | gap          | S      | done                                  |
+| [`redirectedFrom`](#3-redirectedfrom)                       | gap          | S      | done                                  |
+| [Link: object `to`, `exact`](#4-link-object-to-and-exact)   | gap          | S      | done                                  |
+| [Scroll behavior](#5-scroll-behavior)                       | out of scope | M      | planned                               |
+| [Named views](#6-named-views)                               | out of scope | M      | planned                               |
+| [Dynamic routes](#7-dynamic-routes-addroute--removeroute)   | out of scope | M      | planned                               |
+| [Declarative `<upuaut-route>`](#8-declarative-upuaut-route) | out of scope | M      | planned                               |
+| [Transitions](#9-transitions)                               | out of scope | M      | planned                               |
+| [Data loaders and actions](#10-data-loaders-and-actions)    | out of scope | L      | planned                               |
+| [SSR](#11-ssr)                                              | out of scope | L      | planned (may break the component API) |
 
 ## v1 gaps
 
-Small holes in features that v1 already has.
+Small holes in features that v1 already has. **All four are done**; the sections below keep the rationale.
 
 ### 1. Copy the query object
 
 **Now.** `router.push({path: "/search", query: q})` stores the caller's `q` object in `route.query`. If the caller later changes `q`, the current route changes too, without a navigation.
 
-**Fix.** Copy the object (and its array values) in `resolve()`; freeze the result in development builds. Vue Router normalizes the query into a new object for the same reason.
+**Done.** `resolve()` copies the object and its array values. Vue Router normalizes the query into a new object for the same reason.
 
 ### 2. Error hook: `router.onError()`
 
@@ -36,7 +36,7 @@ Small holes in features that v1 already has.
 
 **Others.** Vue Router has `router.onError(handler)`. React Router has an `errorElement` per route.
 
-**Design.** `router.onError((error, to, from) => void): () => void`. Pops and links call the handlers; if there are none, keep the `console.error`. A typical handler reloads the page when a chunk fails to load.
+**Done.** `router.onError((error) => void): () => void`. Every navigation error (push, replace, pops, links, the initial navigation) goes to the handlers, or to `console.error` when there are none; `push`/`replace` still reject. A typical handler reloads the page when a chunk fails to load.
 
 ### 3. `redirectedFrom`
 
@@ -44,7 +44,7 @@ Small holes in features that v1 already has.
 
 **Others.** Vue Router sets `to.redirectedFrom` to the first location of the chain.
 
-**Design.** Add `redirectedFrom?: RouteLocation` to `RouteLocation`; `navigate()` passes the original target down the redirect chain.
+**Done.** `RouteLocation.redirectedFrom` holds the first requested location, for record and guard redirects.
 
 ### 4. Link: object `to` and `exact`
 
@@ -52,7 +52,7 @@ Small holes in features that v1 already has.
 
 **Others.** Vue's `<RouterLink :to="{name: 'user', params}">`; React's `<NavLink end>` for exact matching.
 
-**Design.** A `to` **property** that accepts any `RouteLocationRaw` (the attribute stays a string), and an `exact` attribute that applies the active class only on an exact match.
+**Done.** The `to` **property** accepts any `RouteLocationRaw` (the attribute stays a string); the `exact` attribute applies the active class only on an exact match. An unknown name renders a link without `href` and logs the error.
 
 ## Out of v1 scope
 

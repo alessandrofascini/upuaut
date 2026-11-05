@@ -346,3 +346,86 @@ describe("router edge cases", () => {
     await expect(router.isReady()).rejects.toThrow("init boom");
   });
 });
+
+describe("v1 gaps", () => {
+  it("copies the caller's query object", async () => {
+    const {router} = await setup();
+    const query = {tags: ["a"], q: "x"};
+    await router.push({path: "/users", query});
+    query.q = "changed";
+    query.tags.push("b");
+    expect(router.currentRoute.query).toEqual({tags: ["a"], q: "x"});
+    const named = {q: "1"};
+    const loc = router.resolve({name: "users", query: named});
+    named.q = "2";
+    expect(loc.query).toEqual({q: "1"});
+  });
+
+  it("onError receives navigation errors; push still rejects", async () => {
+    const {router} = await setup();
+    const handler = vi.fn();
+    const error = vi.spyOn(console, "error").mockImplementation(() => undefined);
+    const stop = router.onError(handler);
+    router.beforeEach(() => {
+      throw new Error("guard boom");
+    });
+    await expect(router.push("/users")).rejects.toThrow("guard boom");
+    expect(handler).toHaveBeenCalledWith(new Error("guard boom"));
+    expect(error).not.toHaveBeenCalled();
+
+    stop();
+    await expect(router.push("/users")).rejects.toThrow("guard boom");
+    expect(handler).toHaveBeenCalledTimes(1);
+    expect(error).toHaveBeenCalledWith(new Error("guard boom"));
+    error.mockRestore();
+  });
+
+  it("onError receives errors of pop navigations and unknown names", async () => {
+    const {router, history} = await setup();
+    const handler = vi.fn();
+    router.onError(handler);
+    await expect(router.push({name: "nope"})).rejects.toThrow(UpuautError);
+    expect(handler).toHaveBeenCalledWith(expect.any(UpuautError));
+    await router.push("/users/1");
+    router.beforeEach(() => {
+      throw new Error("pop boom");
+    });
+    history.go(-1);
+    await vi.waitFor(() => expect(handler).toHaveBeenCalledWith(new Error("pop boom")));
+  });
+
+  it("sets redirectedFrom for record and guard redirects", async () => {
+    const {router} = await setup("/", [
+      {path: "/", name: "home", component: "x"},
+      {path: "/old", redirect: "/new"},
+      {path: "/new", redirect: "/final"},
+      {path: "/final", component: "f"},
+      {path: "/admin", component: "a"},
+      {path: "/login", component: "l"},
+    ]);
+    await router.push("/old?k=1");
+    expect(router.currentRoute.path).toBe("/final");
+    expect(router.currentRoute.redirectedFrom?.fullPath).toBe("/old?k=1");
+
+    router.beforeEach((to) => (to.path === "/admin" ? "/login" : undefined));
+    await router.push("/admin");
+    expect(router.currentRoute.path).toBe("/login");
+    expect(router.currentRoute.redirectedFrom?.path).toBe("/admin");
+
+    await router.push("/");
+    expect(router.currentRoute.redirectedFrom).toBeUndefined();
+  });
+
+  it("passes the redirected location to subscribers and afterEach", async () => {
+    const {router} = await setup("/", [
+      {path: "/", component: "x"},
+      {path: "/a", redirect: "/b"},
+      {path: "/b", component: "b"},
+    ]);
+    const seen: (string | undefined)[] = [];
+    router.subscribe((to) => seen.push(to.redirectedFrom?.path));
+    router.afterEach((to) => seen.push(to.redirectedFrom?.path));
+    await router.push("/a");
+    expect(seen).toEqual(["/a", "/a"]);
+  });
+});

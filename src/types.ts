@@ -69,6 +69,8 @@ export interface RouteLocation {
   meta: Meta;
   /** Matched records root → leaf; `<upuaut-view>` at depth N renders `matched[N]`. Empty when nothing matched. */
   matched: RouteRecord[];
+  /** The location originally requested, when this one was reached through redirects (record or guard). */
+  redirectedFrom?: RouteLocation;
 }
 
 /**

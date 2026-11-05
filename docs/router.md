@@ -106,6 +106,7 @@ interface RouteLocation {
   hash: string; // "" or "#top"
   meta: Record<string, unknown>;
   matched: RouteRecord[]; // root -> leaf, one per nested <upuaut-view>
+  redirectedFrom?: RouteLocation; // first requested location when redirects happened
 }
 
 type RouteLocationRaw =
@@ -130,6 +131,7 @@ interface Router {
     hook: (to: RouteLocation, from: RouteLocation, failure?: NavigationFailure) => void,
   ): () => void;
   subscribe(listener: (to: RouteLocation, from: RouteLocation) => void): () => void;
+  onError(handler: (error: unknown) => void): () => void; // errors of any navigation
   isReady(): Promise<void>; // resolves after the initial navigation
   start(): Promise<void>; // reads the history location and listens to it
   stop(): void;
@@ -151,12 +153,12 @@ type NavigationGuard = (
 
 Order (Vue Router): global `beforeEach` (registration order) → `beforeEnter` of each newly entered record → lazy components resolved → history updated → `subscribe` listeners → `afterEach`.
 
-| Guard returns        | Effect                                                   |
-| -------------------- | -------------------------------------------------------- |
-| `undefined` / `true` | continue                                                 |
-| `false`              | abort; failure `aborted`                                 |
-| `RouteLocationRaw`   | redirect (a new navigation, replacing the history entry) |
-| throws / rejects     | abort; the error propagates from `push()`                |
+| Guard returns        | Effect                                                                                                |
+| -------------------- | ----------------------------------------------------------------------------------------------------- |
+| `undefined` / `true` | continue                                                                                              |
+| `false`              | abort; failure `aborted`                                                                              |
+| `RouteLocationRaw`   | redirect (a new navigation, replacing the history entry)                                              |
+| throws / rejects     | abort; `onError` handlers get the error (or `console.error` when there are none) and `push()` rejects |
 
 Redirect chains are limited to 10 hops; the 11th throws `UpuautError`.
 
@@ -208,12 +210,14 @@ Descendants find their router by walking up the tree, also across shadow roots.
 
 ### `<upuaut-link>`
 
-| Attribute            | Default                    | Description                                           |
-| -------------------- | -------------------------- | ----------------------------------------------------- |
-| `to`                 | —                          | target, a string `RouteLocationRaw`                   |
-| `replace`            | absent                     | use `replace` instead of `push`                       |
-| `active-class`       | `upuaut-link-active`       | added when `to` is a prefix of the current path       |
-| `exact-active-class` | `upuaut-link-exact-active` | added on exact match; also sets `aria-current="page"` |
+| Attribute            | Default                    | Description                                                                                   |
+| -------------------- | -------------------------- | --------------------------------------------------------------------------------------------- |
+| `to`                 | —                          | target string; the `to` **property** also accepts any `RouteLocationRaw` (e.g. a named route) |
+| `replace`            | absent                     | use `replace` instead of `push`                                                               |
+| `active-class`       | `upuaut-link-active`       | added when `to` is a prefix of the current path                                               |
+| `exact-active-class` | `upuaut-link-exact-active` | added on exact match; also sets `aria-current="page"`                                         |
+| `exact`              | absent                     | the active class also requires an exact match (React's `end`)                                 |
+| `target`             | absent                     | copied to the anchor                                                                          |
 
 - Renders a real `<a href>` (from `router.resolve(to).href`) that wraps the slotted children, so middle-click, "open in new tab" and crawlers work.
 - Plain left-clicks without modifier keys (`ctrl`, `meta`, `shift`, `alt`), without `target="_blank"` and without `download` call `router.push()` and `preventDefault()`.
@@ -256,6 +260,7 @@ The `<demo-panel>` on the right changes the router live:
 | Control                                                | Shows                                                             |
 | ------------------------------------------------------ | ----------------------------------------------------------------- |
 | History: web / hash / memory                           | swapping the `Router` on `<upuaut-router>` at runtime             |
+| Palette                                                | demo only: Ancient Egypt color palettes, switched live            |
 | Require login                                          | `beforeEach` redirect                                             |
 | Block every navigation                                 | `aborted` failure; Back is undone silently                        |
 | Slow guard (ms)                                        | `cancelled` failure when a second click wins                      |

@@ -7,7 +7,14 @@
  */
 
 export {createRouter, START_LOCATION} from "./router";
-export type {AfterEachHook, NavigationResult, Router, RouterOptions, RouteListener} from "./router";
+export type {
+  AfterEachHook,
+  ErrorHandler,
+  NavigationResult,
+  Router,
+  RouterOptions,
+  RouteListener,
+} from "./router";
 
 export {createHashHistory, createMemoryHistory, createWebHistory} from "./history";
 export type {HistoryListener, HistoryNavigationInfo, RouterHistory} from "./history";

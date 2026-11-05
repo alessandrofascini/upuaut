@@ -1,4 +1,5 @@
 import {mold, Shape} from "khnum";
+import type {UpuautLink} from "upuaut";
 
 const USERS = [
   {id: 1, name: "Ada"},
@@ -8,9 +9,12 @@ const USERS = [
 
 export class UsersPage extends Shape("demo-users") {
   override render(): void {
-    const items = USERS.map((user) =>
-      mold("li", mold("upuaut-link", {to: `/users/${user.id}`}, user.name)),
-    );
+    // Named-route targets go through the `to` property (attributes are strings).
+    const items = USERS.map((user) => {
+      const link = mold<UpuautLink>("upuaut-link", user.name);
+      link.to = {name: "user", params: {id: String(user.id)}};
+      return mold("li", link);
+    });
     this.replaceChildren(
       mold("h1", "Users"),
       mold("ul", ...items),

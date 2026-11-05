@@ -76,6 +76,8 @@ export function createDemoRouter(mode: HistoryMode, initial: string): Router {
       : undefined,
   );
 
+  router.onError((error) => addLog("error", String(error)));
+
   router.afterEach((to, from, failure) => {
     if (failure) addLog("failure", `${failure.type}: ${from.fullPath} → ${to.fullPath}`);
     else addLog("ok", `${from === START_LOCATION ? "start" : from.fullPath} → ${to.fullPath}`);

@@ -87,3 +87,25 @@ test("query, optional param, splat and function redirect pages", async ({page}) 
   await nav(page, "Old user").click();
   await expect(page).toHaveURL("/users/3");
 });
+
+test("inspector shows redirectedFrom after a redirect", async ({page}) => {
+  await page.locator("nav.app-nav").getByRole("link", {name: "Old user", exact: true}).click();
+  await expect(page).toHaveURL("/users/3");
+  await expect(card(page, "Current route").locator("pre")).toContainText(
+    '"redirectedFrom": "/old-user/3"',
+  );
+});
+
+test("switches palette live and remembers it", async ({page}) => {
+  const accent = () =>
+    page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue("--accent"));
+  const before = await accent();
+  await card(page, "Palette").getByRole("button", {name: "Lapis and Gold"}).click();
+  await expect(page.locator("html")).toHaveAttribute("data-palette", "lapis-and-gold");
+  expect(await accent()).not.toBe(before);
+  await page.reload();
+  await expect(page.locator("html")).toHaveAttribute("data-palette", "lapis-and-gold");
+  await card(page, "Palette").getByRole("button", {name: "Default"}).click();
+  await expect(page.locator("html")).not.toHaveAttribute("data-palette");
+  expect(await accent()).toBe(before);
+});
