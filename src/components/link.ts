@@ -16,6 +16,17 @@ export const DEFAULT_EXACT_ACTIVE_CLASS = "upuaut-link-exact-active";
 const normalize = (path: string): string =>
   (path.length > 1 && path.endsWith("/") ? path.slice(0, -1) : path).toLowerCase();
 
+/**
+ * <upuaut-link to="/path">: a real <a href> that navigates through the router.
+ *
+ * It renders an actual anchor (wrapping the link's children) rather than a
+ * clickable element, so middle-click, "open in new tab", "copy link" and
+ * crawlers keep working; only a plain left click is taken over.
+ *
+ * Active state, as in Vue's RouterLink and React's NavLink:
+ * - active: the current path is the target or below it (/users for /users/1)
+ * - exact active: the current path is the target; also sets aria-current
+ */
 export class UpuautLink extends Shape<LinkProps>("upuaut-link", [
   "to",
   "replace",
@@ -34,6 +45,8 @@ export class UpuautLink extends Shape<LinkProps>("upuaut-link", [
   override render(): void {
     if (!this.#anchor || this.#anchor.parentNode !== this) {
       const anchor = document.createElement("a");
+      // Move (not copy) the author's children into the anchor, once. On
+      // reconnect the anchor is already our child and is reused.
       anchor.append(...this.childNodes);
       this.replaceChildren(anchor);
       this.#anchor = anchor;
@@ -97,6 +110,12 @@ export class UpuautLink extends Shape<LinkProps>("upuaut-link", [
     anchor.classList.add(...this.#classes);
   }
 
+  /**
+   * Takes over the click only when the browser would navigate in this tab.
+   * Modifier keys, other buttons, a target other than "_self" or a download
+   * attribute mean the user wants the browser behavior, so the event is left
+   * alone.
+   */
   #onClick(event: MouseEvent): void {
     const router = this.#router;
     if (!router || this.to === null) return;

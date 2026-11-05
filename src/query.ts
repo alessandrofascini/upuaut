@@ -8,6 +8,11 @@ const decode = (s: string): string => {
   }
 };
 
+/**
+ * Parses "?a=1&a=2&b" into {a: ["1", "2"], b: ""}. A repeated key becomes an
+ * array. "+" means space (form encoding). Malformed escapes are kept as is
+ * instead of throwing, because a URL typed by a user must not crash routing.
+ */
 export function parseQuery(search: string): Query {
   const query: Query = {};
   const source = search.startsWith("?") ? search.slice(1) : search;
@@ -25,6 +30,7 @@ export function parseQuery(search: string): Query {
   return query;
 }
 
+/** The inverse of parseQuery(). Returns "" for an empty query, else "?...". */
 export function stringifyQuery(query: Query): string {
   const parts: string[] = [];
   for (const [key, value] of Object.entries(query)) {

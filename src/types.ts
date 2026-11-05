@@ -7,6 +7,12 @@ export type Meta = Record<string, unknown>;
 export type RouteComponent = Vessel<any> | CustomElementConstructor | string;
 export type LazyRouteComponent = () => Promise<RouteComponent | {default: RouteComponent}>;
 
+/*
+ * Checklist: when you add a field to RouteRecord, also update
+ * - navigate() in router.ts if the field affects navigation,
+ * - the record table in docs/router.md (section 2),
+ * - tests/router.test.ts.
+ */
 export interface RouteRecord {
   path: string;
   name?: string;

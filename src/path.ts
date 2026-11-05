@@ -1,3 +1,20 @@
+/*
+ * Path patterns.
+ *
+ * A pattern is compiled once into a regular expression plus a score. Each
+ * segment adds to the score by kind, so a more specific pattern always ranks
+ * above a less specific one for the same URL (the ranking idea comes from
+ * React Router):
+ *
+ *   static "users"  10    /users/new    = 20
+ *   param  ":id"     3    /users/:id    = 13
+ *   optional ":id?"  2    /users/:id?   = 12
+ *   splat  ":rest*"  1    /users/:rest* = 11
+ *
+ * Optional and splat segments own their leading "/" inside the group, so
+ * "/users/:id?" matches "/users" as well as "/users/42".
+ */
+
 import {UpuautError} from "./errors";
 import type {Params} from "./types";
 
@@ -28,6 +45,10 @@ const safeDecode = (s: string): string => {
   }
 };
 
+/**
+ * Joins a child path to its parent. An absolute child ("/x") ignores the
+ * parent. A child "*" stays scoped: under "/users" it becomes "/users/*".
+ */
 export function joinPaths(parent: string, child: string): string {
   if (child.startsWith("/") || parent === "") return child;
   const base = parent.endsWith("/") ? parent.slice(0, -1) : parent;
@@ -56,6 +77,11 @@ function parseSegments(pattern: string): Segment[] {
   });
 }
 
+/**
+ * Compiles a pattern. Throws UpuautError for an invalid param name or a splat
+ * that is not the last segment. Matching is case-insensitive and accepts one
+ * trailing slash.
+ */
 export function compilePath(pattern: string): CompiledPath {
   const segments = parseSegments(pattern);
   const names: string[] = [];
@@ -81,6 +107,8 @@ export function compilePath(pattern: string): CompiledPath {
   }
   source += "/?$";
   const regex = new RegExp(source, "i");
+  // The root "/" has no segments; scoring it as one static segment keeps it
+  // above the catch-all "*", which also matches "/".
   const score =
     segments.length === 0 ? SCORES.static : segments.reduce((sum, s) => sum + SCORES[s.kind], 0);
 

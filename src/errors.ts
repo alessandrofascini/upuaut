@@ -1,6 +1,15 @@
 import {KhnumError} from "khnum";
 import type {RouteLocation} from "./types";
 
+/*
+ * Upuaut separates two kinds of "it did not work":
+ *
+ * - UpuautError is thrown for programming errors (unknown route name, missing
+ *   param, redirect loop, a view outside a router). Fix the code.
+ * - NavigationFailure is returned for expected outcomes (a guard said no, a
+ *   newer navigation won, the target is the current page). Handle or ignore.
+ */
+
 export class UpuautError extends KhnumError {
   constructor(functionName: string, message: string) {
     super(functionName, message);
