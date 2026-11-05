@@ -24,20 +24,26 @@ Pop (back, forward or go) path into the router:
 ```mermaid
 flowchart LR
   user["back() / forward() / go(delta)"] --> go["history.go(delta)"]
-  go --> listeners["listeners(to, from)"]
-  listeners --> pop["router navigate(to, 'pop')"]
+  go --> onPop["onPop: delta = state.upuautPosition - position"]
+  onPop --> silent{"silentPops > 0?"}
+  silent -- yes --> skip["consume, no listeners"]
+  silent -- no --> listeners["listeners(to, from, {delta})"]
+  listeners --> pop["router navigate(to, 'pop', 0, delta)"]
+  pop -- "guard aborts" --> undo["history.go(-delta, false)"]
 ```
 
 ## Key symbols
 
-| Symbol               | Kind      | Path           | Grep anchor                            | Role                                                                        |
-| -------------------- | --------- | -------------- | -------------------------------------- | --------------------------------------------------------------------------- |
-| RouterHistory        | interface | src/history.ts | `export interface RouterHistory {`     | Contract the router depends on.                                             |
-| HistoryListener      | type      | src/history.ts | `export type HistoryListener =`        | Callback `(to, from)` fired on history changes.                             |
-| createMemoryHistory  | function  | src/history.ts | `export function createMemoryHistory(` | In-memory stack with index; for tests and non-browser use.                  |
-| createWebHistory     | function  | src/history.ts | `export function createWebHistory(`    | Browser history with a base path (demo uses it).                            |
-| createHashHistory    | function  | src/history.ts | `export function createHashHistory(`   | Hash-based browser history.                                                 |
-| createBrowserHistory | function  | src/history.ts | `function createBrowserHistory(`       | Private shared implementation: `read()` for location, `toHref()` for hrefs. |
+| Symbol                | Kind      | Path           | Grep anchor                                | Role                                                                        |
+| --------------------- | --------- | -------------- | ------------------------------------------ | --------------------------------------------------------------------------- |
+| RouterHistory         | interface | src/history.ts | `export interface RouterHistory {`         | Contract the router depends on; `go(delta, triggerListeners?)`.             |
+| HistoryNavigationInfo | interface | src/history.ts | `export interface HistoryNavigationInfo {` | `{delta}` passed to listeners; 0 when unknown.                              |
+| readPosition          | function  | src/history.ts | `const readPosition = ():`                 | Reads `history.state.upuautPosition`.                                       |
+| HistoryListener       | type      | src/history.ts | `export type HistoryListener =`            | Callback `(to, from, {delta})` fired on pops.                               |
+| createMemoryHistory   | function  | src/history.ts | `export function createMemoryHistory(`     | In-memory stack with index; for tests and non-browser use.                  |
+| createWebHistory      | function  | src/history.ts | `export function createWebHistory(`        | Browser history with a base path (demo uses it).                            |
+| createHashHistory     | function  | src/history.ts | `export function createHashHistory(`       | Hash-based browser history.                                                 |
+| createBrowserHistory  | function  | src/history.ts | `function createBrowserHistory(`           | Private shared implementation: `read()` for location, `toHref()` for hrefs. |
 
 ## Dependencies
 

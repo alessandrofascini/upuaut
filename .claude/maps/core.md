@@ -39,7 +39,7 @@ flowchart LR
 | RouteLocation       | interface | src/types.ts  | `export interface RouteLocation {`              | Resolved location: path, fullPath, params, query, hash, meta, matched chain.       |
 | RouteLocationRaw    | type      | src/types.ts  | `export type RouteLocationRaw =`                | Input to push, replace and resolve: string, path object or named object.           |
 | NavigationGuard     | type      | src/types.ts  | `export type NavigationGuard = (`               | Guard `(to, from)` returning void, boolean or a redirect location.                 |
-| RouteComponent      | type      | src/types.ts  | `export type RouteComponent =`                  | Khnum vessel or custom element tag name.                                           |
+| RouteComponent      | type      | src/types.ts  | `export type RouteComponent =`                  | Khnum vessel, registered plain custom element class, or tag name.                  |
 | LazyRouteComponent  | type      | src/types.ts  | `export type LazyRouteComponent =`              | Loader returning a component or `{default}` module.                                |
 | UpuautError         | class     | src/errors.ts | `export class UpuautError extends KhnumError {` | Error with the failing function name as prefix.                                    |
 | NavigationFailure   | interface | src/errors.ts | `export interface NavigationFailure {`          | Outcome object with type `aborted`, `cancelled` or `duplicated`, plus from and to. |

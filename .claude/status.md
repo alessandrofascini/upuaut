@@ -2,9 +2,9 @@
 
 ## Current
 
-| Task                                              | Stage       | Mode | Ultracode | Updated    |
-| ------------------------------------------------- | ----------- | ---- | --------- | ---------- |
-| Upuaut router library + demo SPA (docs/router.md) | build L1-L4 | AFK  | yes       | 2026-11-05 |
+| Task                                              | Stage  | Mode | Ultracode | Updated    |
+| ------------------------------------------------- | ------ | ---- | --------- | ---------- |
+| Upuaut router library + demo SPA (docs/router.md) | finish | AFK  | yes       | 2026-11-05 |
 
 ## Worktrees
 
@@ -20,6 +20,7 @@ gitGraph
   commit id: "components"
   commit id: "demo"
   commit id: "finish"
+  commit id: "limits"
 ```
 
 | Worktree path                       | Branch         | Task   | Stage  | Last commit                     | Next step                                           | Tier |
@@ -65,9 +66,10 @@ gitGraph
 | 2026-11-05 | Limits round: implement 1 (history positions), 2 (class check), 3 (Vitest browser mode), 4 (tools) | user "implement them"                                                                  | user                       |
 | 2026-11-05 | Limit 3 uses Vitest browser mode + Playwright Chromium (not standalone Playwright e2e)             | reuses existing tests                                                                  | AFK                        |
 | 2026-11-05 | Silent pop via `go(delta, false)` + position in `history.state.upuautPosition`                     | Vue Router approach                                                                    | AFK                        |
+| 2026-11-05 | `test:browser` kept out of `npm run check`                                                         | browser tests on request; check stays fast and offline                                 | AFK                        |
+| 2026-11-05 | Review of limits diff: no blocking findings (see .claude/outputs/review.md rows 6-8)               | review                                                                                 | top tier                   |
 
 ## Assumptions
 
 - "implement them" includes limit 3, so it counts as permission to download Playwright Chromium.
 - Limit 2: class check plus `customElements.getName` (no `lazy:` field).
-  | 2026-11-05 | `test:browser` kept out of `npm run check` | brief: browser tests on request; check stays offline-fast | AFK |
