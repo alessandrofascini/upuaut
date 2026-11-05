@@ -4,12 +4,12 @@ Remaining work for Upuaut after `feature/router`. Details and proposed designs f
 
 ## Release
 
-- [ ] 🔒 Merge the feature: `git flow feature finish router` (into `develop`)
-- [ ] 🔒 Add a git remote and push `master`, `develop` (no remote is configured)
-- [ ] Add `CHANGELOG.md` (0.1.0: router core, histories, components, demo)
-- [ ] Check the package contents with `npm pack --dry-run` (`dist/` only, types, ESM + UMD)
-- [ ] 🔒 Release 0.1.0: `git flow release start 0.1.0`, bump `package.json`, tag
-- [ ] 🔒 Publish to npm
+- [x] 🔒 Merge the feature: `git flow feature finish router` (into `develop`)
+- [x] 🔒 Add a git remote and push `master`, `develop` (no remote is configured)
+- [x] Add `CHANGELOG.md` (0.1.0: router core, histories, components, demo)
+- [x] Check the package contents with `npm pack --dry-run` (`dist/` only, types, ESM + UMD)
+- [x] 🔒 Release 0.1.0: `git flow release start 0.1.0`, bump `package.json`, tag
+- [x] 🔒 Publish to npm
 
 ## CI
 

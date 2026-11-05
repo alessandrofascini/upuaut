@@ -2,9 +2,9 @@
 
 ## Current
 
-| Task                                              | Stage  | Mode | Ultracode | Updated    |
-| ------------------------------------------------- | ------ | ---- | --------- | ---------- |
-| Upuaut router library + demo SPA (docs/router.md) | finish | AFK  | yes       | 2026-11-05 |
+| Task                                              | Stage         | Mode     | Ultracode | Updated    |
+| ------------------------------------------------- | ------------- | -------- | --------- | ---------- |
+| Upuaut router library + demo SPA (docs/router.md) | release 0.1.0 | ATTENDED | no        | 2026-11-05 |
 
 ## Worktrees
 
@@ -81,6 +81,8 @@ gitGraph
 | 2026-11-05 | Missing tests: 27 edge-case tests, host.test.ts for pre-definition path                                                   | coverage gaps                                                                          | AFK                        |
 | 2026-11-05 | TypeDoc in tools/typedoc (own package, TS 6.0.3): root TS 7 has no JS API and npm overrides cannot reroute typedoc's peer | docs generation                                                                        | AFK                        |
 | 2026-11-05 | docs/roadmap.md explains gaps + out-of-scope; docs/guide.md recipes; all exports documented (notDocumented gate)          | user request                                                                           | AFK                        |
+| 2026-11-05 | Merge feature/router into develop with `-k` (branch kept); push master, develop, feature/router                           | user request; branch deletion not requested                                            | user                       |
+| 2026-11-05 | Release 0.1.0 via git flow; CHANGELOG, repository/homepage/bugs fields, `prepublishOnly: npm run check`; publish to npm   | user request                                                                           | user                       |
 
 ## Assumptions
 

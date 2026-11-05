@@ -1,6 +1,6 @@
 {
   "name": "upuaut",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "A web-component router built on khnum.",
   "keywords": [
     "web-components",
@@ -35,7 +35,8 @@
     "check": "npm run format:check && npm run typecheck && npm run test && npm run build && npm run build:demo",
     "test:browser": "vitest run --project browser",
     "test:e2e": "playwright test",
-    "docs": "npm ci --prefix tools/typedoc --silent && tools/typedoc/node_modules/.bin/typedoc"
+    "docs": "npm ci --prefix tools/typedoc --silent && tools/typedoc/node_modules/.bin/typedoc",
+    "prepublishOnly": "npm run check"
   },
   "license": "MIT",
   "author": "Alessandro Fascini",
@@ -55,5 +56,13 @@
     "vite": "^8.3.6",
     "vite-plugin-dts": "^5.1.2",
     "vitest": "^5.1.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alessandrofascini/upuaut.git"
+  },
+  "homepage": "https://github.com/alessandrofascini/upuaut#readme",
+  "bugs": {
+    "url": "https://github.com/alessandrofascini/upuaut/issues"
   }
 }
