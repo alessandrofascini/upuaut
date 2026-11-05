@@ -24,7 +24,7 @@ Remaining work for Upuaut after `feature/router`. Items marked 🔒 need explici
 - [ ] Error hook: `router.onError(cb)` for errors thrown by guards and lazy loaders during pop navigations (now only `console.error`)
 - [ ] `RouteLocation.redirectedFrom`, so pages can tell that a redirect happened
 - [ ] `<upuaut-link>`: accept an object `to` through a property (named routes in markup); `exact` option for the active class
-- [ ] Tests for the uncovered link paths (`renderTarget`, `renderActiveClass`, `renderExactActiveClass`)
+- [x] Tests for the uncovered paths (coverage now 99.8 % statements, 99.7 % branches, 100 % functions and lines)
 
 ## Library: out of v1 scope (docs/router.md section 10)
 

@@ -174,3 +174,72 @@ describe("browser histories", () => {
     });
   });
 });
+
+describe("history edge cases", () => {
+  let h: RouterHistory | undefined;
+  beforeEach(() => window.history.replaceState(null, "", "/"));
+  afterEach(() => {
+    h?.destroy();
+    h = undefined;
+  });
+
+  it("memory destroy keeps the location and drops listeners", () => {
+    const m = createMemoryHistory();
+    const cb = vi.fn();
+    m.listen(cb);
+    m.push("/a");
+    m.push("/b");
+    m.destroy();
+    expect(m.location).toBe("/b");
+    m.go(-1);
+    expect(m.location).toBe("/b");
+    expect(cb).not.toHaveBeenCalled();
+  });
+
+  it("accepts a base without slashes and maps the base itself to /", () => {
+    window.history.replaceState(null, "", "/app");
+    h = createWebHistory("app");
+    expect(h.location).toBe("/");
+    expect(h.createHref("/x")).toBe("/app/x");
+  });
+
+  it("keeps locations outside the base unchanged", () => {
+    window.history.replaceState(null, "", "/other/page");
+    h = createWebHistory("/app");
+    expect(h.location).toBe("/other/page");
+  });
+
+  it("reuses an existing position after a reload", () => {
+    window.history.replaceState({upuautPosition: 5}, "", "/");
+    h = createWebHistory();
+    h.push("/a");
+    expect(window.history.state).toEqual({upuautPosition: 6});
+  });
+
+  it("ignores a second event for the same location and supports unlisten", () => {
+    h = createWebHistory();
+    const cb = vi.fn();
+    const stop = h.listen(cb);
+    window.history.replaceState({upuautPosition: 0}, "", "/b");
+    window.dispatchEvent(new PopStateEvent("popstate"));
+    window.dispatchEvent(new HashChangeEvent("hashchange"));
+    expect(cb).toHaveBeenCalledTimes(1);
+    stop();
+    window.history.replaceState({upuautPosition: 0}, "", "/c");
+    window.dispatchEvent(new PopStateEvent("popstate"));
+    expect(cb).toHaveBeenCalledTimes(1);
+  });
+
+  it("a normal go() is not silent", () => {
+    h = createWebHistory();
+    const go = vi.spyOn(window.history, "go").mockImplementation(() => undefined);
+    const cb = vi.fn();
+    h.listen(cb);
+    h.push("/a");
+    h.go(-1);
+    window.history.replaceState({upuautPosition: 0}, "", "/");
+    window.dispatchEvent(new PopStateEvent("popstate"));
+    expect(cb).toHaveBeenCalledWith("/", "/a", {delta: -1});
+    go.mockRestore();
+  });
+});

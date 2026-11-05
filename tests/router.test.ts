@@ -255,3 +255,94 @@ describe("stop", () => {
     expect(router.currentRoute.path).toBe("/users");
   });
 });
+
+describe("router edge cases", () => {
+  it("accepts paths without a leading slash and a bare #", async () => {
+    const {router} = await setup();
+    await router.push("users/4#");
+    expect(router.currentRoute.fullPath).toBe("/users/4");
+    expect(router.currentRoute.hash).toBe("");
+  });
+
+  it("accepts a lazy loader that returns the component directly", async () => {
+    const record: RouteRecord = {path: "/lazy", component: async () => "direct-page"};
+    const {router} = await setup("/", [{path: "/", component: "x"}, record]);
+    await router.push("/lazy");
+    expect(record.component).toBe("direct-page");
+  });
+
+  it("cancels a navigation that is still loading a lazy component", async () => {
+    let release!: () => void;
+    const slow = new Promise<string>((r) => (release = () => r("slow-page")));
+    const {router} = await setup("/", [
+      {path: "/", component: "x"},
+      {path: "/slow", component: () => slow},
+      {path: "/fast", component: "fast"},
+    ]);
+    const pending = router.push("/slow");
+    await router.push("/fast");
+    release();
+    expect(isNavigationFailure(await pending, "cancelled")).toBe(true);
+    expect(router.currentRoute.path).toBe("/fast");
+  });
+
+  it("forward() and go() move through the history", async () => {
+    const {router} = await setup();
+    await router.push("/users/1");
+    await router.push("/users/2");
+    router.go(-2);
+    await vi.waitFor(() => expect(router.currentRoute.path).toBe("/"));
+    router.forward();
+    await vi.waitFor(() => expect(router.currentRoute.path).toBe("/users/1"));
+  });
+
+  it("start() returns the same promise until stop()", async () => {
+    const history = createMemoryHistory();
+    const router = createRouter({history, routes: routes()});
+    const first = router.start();
+    expect(router.start()).toBe(first);
+    await first;
+    router.stop();
+    expect(router.start()).not.toBe(first);
+  });
+
+  it("rewrites the URL when an aborted pop has an unknown delta", async () => {
+    const memory = createMemoryHistory();
+    const history = {
+      ...memory,
+      get location() {
+        return memory.location;
+      },
+      listen: (cb: Parameters<typeof memory.listen>[0]) =>
+        memory.listen((to, from) => cb(to, from, {delta: 0})),
+    };
+    const replace = vi.spyOn(history, "replace");
+    const router = createRouter({history, routes: routes()});
+    await router.start();
+    await router.push("/users/1");
+    router.beforeEach(() => false);
+    memory.go(-1);
+    await vi.waitFor(() => expect(replace).toHaveBeenCalledWith("/users/1"));
+  });
+
+  it("reports errors thrown during pop navigations to the console", async () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => undefined);
+    const {router, history} = await setup();
+    await router.push("/users/1");
+    router.beforeEach(() => {
+      throw new Error("pop boom");
+    });
+    history.go(-1);
+    await vi.waitFor(() => expect(error).toHaveBeenCalledWith(new Error("pop boom")));
+    error.mockRestore();
+  });
+
+  it("rejects start() and isReady() when the initial navigation throws", async () => {
+    const router = createRouter({history: createMemoryHistory(), routes: routes()});
+    router.beforeEach(() => {
+      throw new Error("init boom");
+    });
+    await expect(router.start()).rejects.toThrow("init boom");
+    await expect(router.isReady()).rejects.toThrow("init boom");
+  });
+});

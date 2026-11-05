@@ -75,6 +75,8 @@ gitGraph
 | 2026-11-05 | Add antirez-style comments (design, why, function, teacher, checklist; no trivial/debt/backup) to src/ | user request overrides the default low comment density                                 | user                       |
 | 2026-11-05 | Demo control panel + styles; demo router split into demo/router.ts, settings, log; 7 new e2e tests     | user request                                                                           | user                       |
 | 2026-11-05 | Remaining work tracked in TODO.md (repo root)                                                          | user request                                                                           | user                       |
+| 2026-11-05 | Release and CI postponed                                                                               | user                                                                                   | user                       |
+| 2026-11-05 | Missing tests: 27 edge-case tests, host.test.ts for pre-definition path                                | coverage gaps                                                                          | AFK                        |
 
 ## Assumptions
 

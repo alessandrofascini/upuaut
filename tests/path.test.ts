@@ -85,3 +85,18 @@ describe("joinPaths", () => {
     expect(joinPaths("", "*")).toBe("*");
   });
 });
+
+describe("path edge cases", () => {
+  it("keeps malformed escapes in params", () => {
+    expect(compilePath("/users/:id").match("/users/%E0%A4%A")).toEqual({id: "%E0%A4%A"});
+  });
+
+  it("supports a nested anonymous splat and strips its trailing slash", () => {
+    expect(compilePath("/files/*").match("/files/a/b/")).toEqual({"*": "a/b"});
+    expect(compilePath("/files/:rest*").match("/files/a/")).toEqual({rest: "a"});
+  });
+
+  it("joins an empty child under the root", () => {
+    expect(joinPaths("/", "")).toBe("/");
+  });
+});

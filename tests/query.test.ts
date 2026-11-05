@@ -35,3 +35,9 @@ describe("stringifyQuery", () => {
     expect(parseQuery(stringifyQuery(q))).toEqual(q);
   });
 });
+
+describe("query edge cases", () => {
+  it("skips empty pairs", () => {
+    expect(parseQuery("?a=1&&b=2&")).toEqual({a: "1", b: "2"});
+  });
+});

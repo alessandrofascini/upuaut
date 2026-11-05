@@ -211,3 +211,103 @@ describe("<upuaut-link>", () => {
     expect(anchor("a").getAttribute("href")).toBe("/users/9");
   });
 });
+
+describe("component edge cases", () => {
+  it("link: exposes its anchor and keeps it across reconnects", async () => {
+    await mount("/", `<upuaut-link to="/users" id="x">Users</upuaut-link>`);
+    const link = document.querySelector("#x") as UpuautLink;
+    const anchor = link.anchor;
+    expect(anchor?.textContent).toBe("Users");
+    const parent = link.parentElement!;
+    link.remove();
+    parent.append(link);
+    expect(link.anchor).toBe(anchor);
+    expect(link.querySelectorAll("a")).toHaveLength(1);
+  });
+
+  it("link: reacts to target, active-class and exact-active-class changes", async () => {
+    await mount("/users", `<upuaut-link to="/users/" id="x">Users</upuaut-link>`);
+    const link = document.querySelector("#x") as UpuautLink;
+    expect(link.anchor?.className).toBe("upuaut-link-active upuaut-link-exact-active");
+    link.setAttribute("target", "_blank");
+    expect(link.anchor?.target).toBe("_blank");
+    link.removeAttribute("target");
+    expect(link.anchor?.hasAttribute("target")).toBe(false);
+    link.setAttribute("active-class", "on");
+    link.setAttribute("exact-active-class", "here");
+    expect(link.anchor?.className).toBe("on here");
+  });
+
+  it("link: leaves clicks alone without a router or with download", async () => {
+    const host = document.createElement("upuaut-router") as UpuautRouter;
+    host.innerHTML = `<upuaut-link to="/a" id="x">A</upuaut-link><upuaut-link to="/a" id="y" download>B</upuaut-link>`;
+    document.body.append(host);
+    const prevented = (id: string): boolean => {
+      const ev = new MouseEvent("click", {bubbles: true, cancelable: true, button: 0});
+      let result = true;
+      document.addEventListener(
+        "click",
+        (e) => {
+          result = e.defaultPrevented;
+          e.preventDefault();
+        },
+        {once: true},
+      );
+      (document.querySelector(`#${id} a`) as HTMLAnchorElement).dispatchEvent(ev);
+      return result;
+    };
+    expect(prevented("x")).toBe(false);
+    host.router = createRouter({history: createMemoryHistory("/"), routes: routes()});
+    await host.router.isReady();
+    expect(prevented("y")).toBe(false);
+  });
+
+  it("link: logs a rejected navigation", async () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => undefined);
+    const {router} = await mount("/", `<upuaut-link to="/users/1" id="x">A</upuaut-link>`);
+    router.beforeEach(() => {
+      throw new Error("link boom");
+    });
+    const ev = new MouseEvent("click", {bubbles: true, cancelable: true, button: 0});
+    (document.querySelector("#x a") as HTMLAnchorElement).dispatchEvent(ev);
+    await vi.waitFor(() => expect(error).toHaveBeenCalledWith(new Error("link boom")));
+    error.mockRestore();
+  });
+
+  it("router element: ignores the same router, clears on undefined, listens after connect", async () => {
+    const router = createRouter({history: createMemoryHistory("/"), routes: routes()});
+    const host = document.createElement("upuaut-router") as UpuautRouter;
+    host.router = router;
+    host.router = router;
+    const seen: string[] = [];
+    host.addEventListener("upuaut-navigated", () => seen.push(router.currentRoute.path));
+    document.body.append(host);
+    await router.isReady();
+    await router.push("/users/1");
+    expect(seen).toContain("/users/1");
+    host.router = undefined;
+    expect(host.router).toBeUndefined();
+    const before = seen.length;
+    await router.push("/");
+    expect(seen).toHaveLength(before);
+  });
+
+  it("router element: logs a failing start", async () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => undefined);
+    const router = createRouter({history: createMemoryHistory("/"), routes: routes()});
+    router.beforeEach(() => {
+      throw new Error("start boom");
+    });
+    const host = document.createElement("upuaut-router") as UpuautRouter;
+    host.router = router;
+    await vi.waitFor(() => expect(error).toHaveBeenCalledWith(new Error("start boom")));
+    error.mockRestore();
+  });
+
+  it("view: names an anonymous unregistered class in the error", async () => {
+    const Anonymous = (() => class extends HTMLElement {})();
+    const {router} = await mount("/users/1");
+    router.resolve("/").matched[0].component = Anonymous;
+    await expect(router.push("/")).rejects.toThrow("component is not registered");
+  });
+});
